@@ -33,13 +33,15 @@ Smart Contracts (PascaLigo) :
      withdraw()
      mining()
   - UserRiskProfile
+     age/revenu/metier/si prêt en cours
      type user_risk_status is bool
      set_user_risk_status()
      get_user_risk_status()
   - FinancingPlan
-    cost 
-    taux 
+    montant prêt du bien / années 
+    en fonction du profil de risque
   - LoanOptimal
+    plafond_max
   - PropretyState
      add_proprety_files()
      change_proprety_files()
