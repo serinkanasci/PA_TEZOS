@@ -37,7 +37,8 @@ Smart Contracts (PascaLigo) :
      set_user_risk_status()
      get_user_risk_status()
   - FinancingPlan
-    cost /
+    cost 
+    taux 
   - LoanOptimal
   - PropretyState
      add_proprety_files()
