@@ -11,6 +11,7 @@ Smart Contracts (PascaLigo) :
      get_admin()
   - User
      type balances is map(addr, nom_nft)
+     # functions
      create_user()
      banned_users() #only_admin
      banned_access_code() #only_admin
@@ -20,7 +21,7 @@ Smart Contracts (PascaLigo) :
      type nft_peer_addr_limit
      type nft_name, nft_symbol, init_base_uri, metadata #metadonnées ou unique key-> colonne bc
      getters
-     
+     # functions
      safe_transfer_from(_from_to, token_id)
      safe_transfer_from(_from_to, token_id, data :bytes)
      set_approval_for_all(operator: addr, approved:bool)
@@ -33,21 +34,30 @@ Smart Contracts (PascaLigo) :
      withdraw()
      mining()
   - UserRiskProfile
-     age/revenu/metier/si prêt en cours
-     type user_risk_status is bool
+     condition : age/revenu/metier/si prêt en court = user_risk_status
+     # functions
      set_user_risk_status()
      get_user_risk_status()
   - FinancingPlan
-    montant prêt du bien / années 
+    montant = prêt du bien / années 
     en fonction du profil de risque
   - LoanOptimal
     plafond_max
   - PropretyState
+     # functions
      add_proprety_files()
      change_proprety_files()
      delete_proprety_files()
   - Signature
+     # functions
      add_signature()
      change_signature()
  
-  
+  Un oracle est à prévoir pour les tâches suivantes :
+- Gestion des exécutions planifiées,
+  timestamp sc -> déclencher paymen
+- Gestion du cours de Tezos en Euro.
+  SC externe:   informations actualisées
+  site -> SC
+  ou bdd externe 
+
