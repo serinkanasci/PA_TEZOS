@@ -9,18 +9,14 @@ block {
     skip
 } with (Tezos.sender = store.admin)
 
-function change_admin (var store : storageType; var address : new_admin) : address is
+function change_admin (var store : storageType; var new_admin : address) : address is
     block {
         store.admin := new_admin
     } with store.admin
 
 function get_admin (var store: storageType) : address is store.admin
 
-function main (const action : token_action; var s : storage) : return is
+function main (const store : storageType) : 
   block {
-    skip
-  } with case action of
-    | only_admin(params) ->
-    | change_admin(params) ->
-    | get_admin(params) ->
-  end;
+
+  }
