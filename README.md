@@ -8,6 +8,6 @@ Pour la note de suivi: 12h45, 17/12/21 :
 
 Serinkan travaille sur le smart contract Administration
 
-Lisa travaille sur le smart contract User, UserProfileRisk
+Lisa travaille sur le smart contract User, UserRiskProfile
 
 Lahoucine travaille sur le smart contract NFT
