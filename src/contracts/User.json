@@ -1,0 +1,65 @@
+[ { "prim": "parameter",
+    "args":
+      [ { "prim": "or",
+          "args":
+            [ { "prim": "unit", "annots": [ "%bannedUser" ] },
+              { "prim": "nat", "annots": [ "%createUser" ] } ] } ] },
+  { "prim": "storage",
+    "args":
+      [ { "prim": "pair",
+          "args":
+            [ { "prim": "pair",
+                "args":
+                  [ { "prim": "bool", "annots": [ "%access_code" ] },
+                    { "prim": "map",
+                      "args": [ { "prim": "address" }, { "prim": "nat" } ],
+                      "annots": [ "%mapping" ] } ] },
+              { "prim": "map",
+                "args": [ { "prim": "address" }, { "prim": "bool" } ],
+                "annots": [ "%mapping_banned" ] } ] } ] },
+  { "prim": "code",
+    "args":
+      [ [ { "prim": "UNPAIR" },
+          { "prim": "IF_LEFT",
+            "args":
+              [ [ { "prim": "DROP" }, { "prim": "DUP" }, { "prim": "CAR" },
+                  { "prim": "CDR" }, { "prim": "SENDER" }, { "prim": "GET" },
+                  { "prim": "IF_NONE",
+                    "args":
+                      [ [ { "prim": "PUSH",
+                            "args":
+                              [ { "prim": "string" },
+                                { "string":
+                                    "[ERROR] Your address has no number saved." } ] },
+                          { "prim": "FAILWITH" } ],
+                        [ { "prim": "DROP" }, { "prim": "DUP" },
+                          { "prim": "CDR" }, { "prim": "SWAP" },
+                          { "prim": "DUP" },
+                          { "prim": "DUG", "args": [ { "int": "2" } ] },
+                          { "prim": "CAR" }, { "prim": "CDR" },
+                          { "prim": "NONE", "args": [ { "prim": "nat" } ] },
+                          { "prim": "SENDER" }, { "prim": "UPDATE" },
+                          { "prim": "DIG", "args": [ { "int": "2" } ] },
+                          { "prim": "CAR" }, { "prim": "CAR" },
+                          { "prim": "PAIR" }, { "prim": "PAIR" } ] ] },
+                  { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                  { "prim": "PAIR" } ],
+                [ { "prim": "SWAP" }, { "prim": "DUP" }, { "prim": "CAR" },
+                  { "prim": "CDR" }, { "prim": "SENDER" }, { "prim": "GET" },
+                  { "prim": "IF_NONE",
+                    "args":
+                      [ [ { "prim": "DUP" }, { "prim": "CDR" },
+                          { "prim": "SWAP" }, { "prim": "DUP" },
+                          { "prim": "DUG", "args": [ { "int": "2" } ] },
+                          { "prim": "CAR" }, { "prim": "CDR" },
+                          { "prim": "DIG", "args": [ { "int": "3" } ] },
+                          { "prim": "SOME" }, { "prim": "SENDER" },
+                          { "prim": "UPDATE" },
+                          { "prim": "DIG", "args": [ { "int": "2" } ] },
+                          { "prim": "CAR" }, { "prim": "CAR" },
+                          { "prim": "PAIR" }, { "prim": "PAIR" } ],
+                        [ { "prim": "DIG", "args": [ { "int": "2" } ] },
+                          { "prim": "DROP", "args": [ { "int": "2" } ] } ] ] },
+                  { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                  { "prim": "PAIR" } ] ] } ] ] } ]
+
