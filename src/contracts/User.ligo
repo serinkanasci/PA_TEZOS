@@ -3,7 +3,6 @@ type banned_users is map(address, bool)
 
 type storageType is record [
   mapping: balances;
-  access_code: bool;
   mapping_banned: banned_users;
 ]
 
@@ -15,8 +14,7 @@ type return is list (operation) * storageType
 
 //  functions
 //  create_user()
-//  banned_users() #only_admin
-//  banned_access_code() #only_admin #pour les immobiliers -> pas obligé de faire une map pour le access code plutôt sur le front.
+//  banned_users() #only_admin #pour les immobiliers -> pas obligé de faire une map pour le access code plutôt sur le front.
 
 function create_users(var store : storageType; var token_id: nat) : (list(operation) * storageType) is 
   block {
