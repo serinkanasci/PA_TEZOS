@@ -16,11 +16,9 @@ Smart Contracts (PascaLigo) :
      banned_users() #only_admin
      banned_access_code() #only_admin
   - NFT
-     type max_supply 
-     type max_amount
-     type nft_peer_addr_limit
-     type nft_name, nft_symbol, init_base_uri, metadata #metadonnées ou unique key-> colonne bc
-     getters
+     type base_uri (ipfs)
+     type unique key --> colonne bc
+     
      # functions
      safe_transfer_from(_from_to, token_id)
      safe_transfer_from(_from_to, token_id, data :bytes)
@@ -32,22 +30,15 @@ Smart Contracts (PascaLigo) :
      transfer_from(_from_to, token_id)
      transfer_ownership(owner)
      withdraw()
-     mining()
+     mint()
   - UserRiskProfile
-     condition : age/revenu/metier/si prêt en court = user_risk_status
+     condition : age/revenu/metier/si prêt en court = user_risk_status + plafond_max
      # functions
      set_user_risk_status()
      get_user_risk_status()
   - FinancingPlan
     montant = prêt du bien / années 
     en fonction du profil de risque
-  - LoanOptimal
-    plafond_max
-  - PropretyState
-     # functions
-     add_proprety_files()
-     change_proprety_files()
-     delete_proprety_files()
   - Signature
      # functions
      add_signature()
