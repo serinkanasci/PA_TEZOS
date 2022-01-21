@@ -39,16 +39,11 @@ Smart Contracts (PascaLigo) :
   - FinancingPlan
     montant = prêt du bien / années 
     en fonction du profil de risque
-  - Signature
-     # functions
-     add_signature()
-     change_signature()
- 
-  Un oracle est à prévoir pour les tâches suivantes :
+
+Un oracle est à prévoir pour les tâches suivantes :
 - Gestion des exécutions planifiées,
   timestamp sc -> déclencher paymen
 - Gestion du cours de Tezos en Euro.
   SC externe:   informations actualisées
   site -> SC
   ou bdd externe 
-
