@@ -5,6 +5,8 @@ Address Public User Smart Contract : https://better-call.dev/hangzhou2net/KT1UmX
 
 Address UserProfileRisk Smart Contract : https://better-call.dev/hangzhou2net/KT1JD1hCqg3u9Wz9v7U1gLgs9qbTgEqZ3jTh/storage
 
+Address FinancingPlan Smart Contract : https://better-call.dev/hangzhou2net/KT1Fqf4uHJgUrr61ui8Nakp3xDct64uqxFsN/storage
+
 Pour la note de suivi: 12h45, 17/12/21 :
 
 Serinkan travaille sur le smart contract Administration
