@@ -5,7 +5,7 @@ import user_json from './FinancingPlan.json'
 
 const Tezos = new TezosToolkit('https://rpc.hangzhounet.teztnets.xyz');
 
-const pk = "edskRtRAqKjio8UhKGXRdQjF9aGwdwvh6Bx9hMDYph1ALuMCcnbRVuaB9KiEmyo3yXoSteckFBxdrLMuJ8vM3TQPTQpDJyFVHL";
+const pk = "";
 const signer = new InMemorySigner(pk);
 Tezos.setProvider({signer: signer })
 console.log(user_json)
