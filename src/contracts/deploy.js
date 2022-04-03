@@ -65,4 +65,8 @@ Tezos.contract
 
   // V2 : https://better-call.dev/hangzhou2net/KT1MZfRT5ryY74qzcuSjbZKUFQC7GRWczKxu/storage
 
+<<<<<<< HEAD
   // V3 : https://better-call.dev/hangzhou2net/KT1MZfRT5ryY74qzcuSjbZKUFQC7GRWczKxu/storage
+=======
+  // V3 : https://better-call.dev/hangzhou2net/KT1MZfRT5ryY74qzcuSjbZKUFQC7GRWczKxu/storage
+>>>>>>> ae8a999f65f4e72b815daca33289dd2745035912
