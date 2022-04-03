@@ -1,5 +1,5 @@
-type balances is map(address, nat)
-type banned_users is map(address, bool)
+type balances is map(address, int);
+type banned_users is map(address, option(int));
 
 type storageType is record [
   mapping: balances;
@@ -7,8 +7,8 @@ type storageType is record [
 ]
 
 type action is
-  CreateUser of nat
- | BannedUser of unit
+  CreateUser of address
+ | BannedUser of address
 
 type return is list (operation) * storageType
 
@@ -16,22 +16,27 @@ type return is list (operation) * storageType
 //  create_user()
 //  banned_users() #only_admin #pour les immobiliers -> pas obligé de faire une map pour le access code plutôt sur le front.
 
-function create_users(var store : storageType; var token_id: nat) : (list(operation) * storageType) is 
+function create_users(var store : storageType; var current_user: address) : (list(operation) * storageType) is 
   block {
-      case store.mapping[Tezos.sender] of
+      token_nb := Map.size(store.mapping) + 1;
+      case store.mapping[current_user] of
         | Some (_bool) -> block {
           skip
         }
-        | None -> store.mapping[Tezos.sender] := token_id
+        | None -> store.mapping[current_user] := token_nb
         end
   }
   with ((nil: list(operation)) , store)
 
-
-function banned_users(var store : storageType) : (list(operation) * storageType) is 
+function banned_users(var store : storageType; var banned_user: address) : (list(operation) * storageType) is 
   block {
-      case store.mapping[Tezos.sender] of
-        | Some (_bool) -> remove Tezos.sender from map store.mapping
+      //token_id := get_token_id(store, banned_user);
+      const token_id : option(int) = store.mapping[banned_user];
+      case store.mapping[banned_user] of
+        | Some (_bool) -> block {
+          store.mapping_banned[banned_user] := token_id;
+          remove banned_user from map store.mapping; 
+        }
         | None -> failwith("[ERROR] Your address has no number saved.")
         end
   }
@@ -42,5 +47,5 @@ function main (var p : action ; var s : storageType) :
   block { skip } with
   case p of
     CreateUser (n) -> create_users (s, n)
-   | BannedUser (_n) -> banned_users (s)
+   | BannedUser (u) -> banned_users (s, u)
    end

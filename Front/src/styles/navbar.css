@@ -1,0 +1,133 @@
+nav{
+
+    display: flex;
+    justify-content: space-around;
+    /* border: 2px solid red; */
+    width: 100%;
+    margin-top: 1%;
+}
+
+.logo{
+    margin-right: 19rem;
+    width: 12%;
+    display: inline;
+}
+
+.nav-menu{
+    width: 50%;
+    /* border: 2px solid red; */
+    margin-right: 3%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav-item{
+    align-self: center;
+    margin-top: 2%;
+    padding: 4%;
+   
+}
+
+.nav-item:hover{
+    background-color: rgb(30, 117, 184);
+    color: white;
+    transform: scale(1.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.nav-menu-close{
+    display: none;
+}
+
+@media (min-width:415px) and (max-width:960px){
+   
+    .nav-menu{
+        display: none;
+    }
+    .logo {
+        margin-right: 19rem;
+        width: 20%;
+        display: inline;
+    }
+
+    .menu-icon{
+        margin-left: 29%;
+        margin-right: 4%;
+    }
+
+    .nav-menu-close{
+        display: none;
+    }
+    .nav-menu-open{
+        padding-bottom: 1%;
+        margin-top: 2%;
+        margin-bottom: 2%;
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        align-content: center;
+        background-color: rgb(105, 95, 163);
+        transition: all ease 0.2s;
+    }
+
+    .nav-item{
+        align-self: center;
+        margin: 2%;
+        padding: 3% 1% 4% 38%;
+        width: 50%;
+        background-color: rgb(105, 95, 163);
+        color: rgb(216, 211, 211);
+        
+    }
+
+
+
+}
+
+
+@media (max-width:415px){
+   
+    .nav-menu{
+        display: none;
+    }
+    .logo {
+        margin-right: 9rem;
+        width: 20%;
+        display: inline;
+    }
+    .menu-icon {
+        margin-left: 14%;
+        margin-right: 7%;
+    }
+
+    .nav-menu-close{
+        display: none;
+    }
+    .nav-menu-open{
+        padding-bottom: 1%;
+        margin-top: 2%;
+        margin-bottom: 2%;
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        align-content: center;
+        background-color: rgb(105, 95, 163);
+        transition: all ease 0.2s;
+    }
+
+    .nav-item{
+        align-self: center;
+        margin: 2%;
+        padding: 3% 1% 4% 38%;
+        width: 50%;
+        background-color: rgb(105, 95, 163);
+        color: rgb(216, 211, 211);
+        
+    }
+
+
+
+}
