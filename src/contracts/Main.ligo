@@ -1,7 +1,10 @@
 type nftId is nat;
-type user_addr is address
-type admin_addr is address
-type agent_addr is address
+type user_addr is address;
+type admin_addr is address;
+type agent_addr is address;
+
+
+type usable_fund is tez;
 
 type validation is 
   record [
@@ -69,7 +72,10 @@ type action is
   | Mint of actionMint
   | Transfer of actionTransfer
   | PayValidation of int
-  | ChangeBalance of tez
+  | Withdraw of tez
+  | Deposit
+  | BanAdmin of address
+  
 
 type storageType is
   record [
@@ -79,12 +85,32 @@ type storageType is
     main_admin: address;
     nfts: nfts;
     balances:balances;
+    usable_fund: usable_fund;
   ]
 
 type return is list (operation) * storageType
 
 function isAdmin (const s : address) : bool is
 	block {skip} with (sender = s)
+
+function ban_admin(var store : storageType; var public_key: address) : (list(operation) * storageType) is 
+  block {
+        if(isAdmin(store.main_admin)) then
+			block{
+				const public_key : address = public_key;
+                case store.mapping_admin[public_key] of
+                    | None -> block{
+                        skip
+                    }
+                    | Some(_a) -> block { 
+                        store.mapping_admin[public_key] := True;
+                        skip
+                    }
+                end
+			}
+		else failwith("You are not admin");
+  }
+  with ((nil: list(operation)) , store)
 
 function create_user(var store : storageType; var parameter: input_user_infos) : (list(operation) * storageType) is 
   block {
@@ -189,9 +215,42 @@ function validation_financing_plan(var store : storageType; var parameter: input
 	}
   with ((nil: list(operation)) , store)
 
+function withdrawF(var s : storageType; var parameter: tez) : (list(operation) * storageType) is 
+  block {
+    const tmp : option(tez) = s.balances[sender];
+    case tmp of
+    | None -> block{
+        skip
+    }
+    | Some(b) -> block { 
+        if sender = s.main_admin and s.usable_fund > parameter
+        then
+        block{
+          const receiver: contract(unit) = get_contract(sender);
+          const _payoutOperation: operation = transaction(unit, parameter, receiver);
+          s.usable_fund := s.usable_fund - parameter;
+        }
+        else if b > parameter
+          then
+          block{
+            const receiver: contract(unit) = get_contract(sender);
+            const _payoutOperation: operation = transaction(unit, parameter, receiver);
+            s.balances[sender] := b - parameter;
+
+          }
+          else skip;
+    }
+    end;
+    
+        
+    //storage.balance := storage.balance - withdrawAmount;              
+  } with ((nil: list(operation)) , s)
+
 function pay_validation(var store : storageType; var parameter: int) : (list(operation) * storageType) is 
   block {
-      const id : int = parameter;
+    if(isAdmin(store.main_admin)) then
+			block{
+				const id : int = parameter;
       case store.mapping_user[id] of
         | Some (_bool) -> block {
             const id : int = parameter;
@@ -214,11 +273,26 @@ function pay_validation(var store : storageType; var parameter: int) : (list(ope
                         if b > tot
                         then
                         block{
-                          const pub : address = d.public_key;
-                          const validation : validation = record [active= d.validation.active; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
-                          const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
-                          store.mapping_user[id] := new_record_user;
-                          store.balances[sender] := b - (d.validation.mensualities_price+d.validation.contribution);
+                          if d.validation.mensualities_months - 1 = 0
+                            then
+                            block{
+                              const pub : address = d.public_key;
+                              const validation : validation = record [active= False; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
+                              const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
+                              store.mapping_user[id] := new_record_user;
+                              store.balances[sender] := b - (d.validation.mensualities_price+d.validation.contribution);
+                              store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
+                            }
+                            else
+                            block{
+                              const pub : address = d.public_key;
+                              const validation : validation = record [active= True; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
+                              const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
+                              store.mapping_user[id] := new_record_user;
+                              store.balances[sender] := b - (d.validation.mensualities_price+d.validation.contribution);
+                              store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
+                            }
+                          
                         }
                         else failwith("Not enough money in the user wallet");
                     }
@@ -234,10 +308,13 @@ function pay_validation(var store : storageType; var parameter: int) : (list(ope
           skip
         }
         end
+			}
+		else failwith("You are not admin");
+      
   }
   with ((nil: list(operation)) , store)
 
-function change_balance(var s : storageType) : (list(operation) * storageType) is
+function deposit(var s : storageType) : (list(operation) * storageType) is
   begin
 
     // if withdraw > 0tez //and s.balances[sender]-withdraw > 0 
@@ -342,5 +419,8 @@ function main (var p : action ; var s : storageType) :
     | Mint (mt) -> mint (mt, s)
     | Transfer (tx) -> transfer (tx, s)
     | PayValidation (p) -> pay_validation (s, p)
-    | ChangeBalance (_) -> change_balance (s)
+    | Withdraw (a) -> withdrawF(s, a)
+    | Deposit (_) -> deposit (s)
+    | BanAdmin (ban) -> ban_admin (s, ban)
+    
    end
