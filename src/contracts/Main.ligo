@@ -45,10 +45,14 @@ type nft is record [
     address_uri : string;
 ]
 
+type agent_infos is record [
+    agency : string;
+    is_ban : bool;
+]
 
 type user is map(int, user_infos);
 type admin is map(address, bool);
-type agent is map(address, string);
+type agent is map(address, agent_infos);
 type nfts is map(nftId, nft);
 type balances is map(address, tez);
 
@@ -112,6 +116,29 @@ function ban_admin(var store : storageType; var public_key: address) : (list(ope
   }
   with ((nil: list(operation)) , store)
 
+
+function ban_agent(var store : storageType; var public_key: address) : (list(operation) * storageType) is 
+  block {
+        if(isAdmin(store.main_admin)) then
+			block{
+				const public_key : address = public_key;
+        const record_agent : option(agent_infos) = store.mapping_agent[public_key];
+        case record_agent of
+        | None -> block{
+            skip
+        }
+        | Some(d) -> block { 
+            const is_ban : bool = True;
+            const agency : string = d.agency;
+            const new_record_agent: agent_infos = record [ agency = agency; is_ban = is_ban;];
+            store.mapping_agent[public_key] := new_record_agent;
+        }
+        end;
+			}
+		else failwith("You are not admin");
+  }
+  with ((nil: list(operation)) , store)
+
 function create_user(var store : storageType; var parameter: input_user_infos) : (list(operation) * storageType) is 
   block {
       const id : int = parameter.id;
@@ -158,16 +185,18 @@ function create_agent(var store : storageType; var parameter: input_agent_infos)
         }
         | Some(_a) -> block { 
           const public_key : address = parameter.public_key;
-      case store.mapping_agent[public_key] of
-        | Some (_bool) -> block {
-          skip
-        }
-        | None -> block {
+          case store.mapping_agent[public_key] of
+            | Some (_bool) -> block {
+              skip
+            }
+            | None -> block {
             const agency : string = parameter.agency;
-            store.mapping_agent[public_key] := agency;
-          skip
-        }
-        end
+            const is_ban : bool = False;
+            const new_record_agent: agent_infos = record [ agency = agency; is_ban = is_ban;];
+            store.mapping_agent[public_key] := new_record_agent;
+            skip
+            }
+          end
         }
         end;      
   }
@@ -175,13 +204,13 @@ function create_agent(var store : storageType; var parameter: input_agent_infos)
 
 function validation_financing_plan(var store : storageType; var parameter: input_user_infos_validation) : (list(operation) * storageType) is 
   block {
-      const agent : option(string) = store.mapping_agent[sender];
+      const agent : option(agent_infos) = store.mapping_agent[sender];
         case agent of
         | None -> block{
             skip
         }
         | Some(a) -> block { 
-            if a=parameter.validation.agency
+            if a.agency=parameter.validation.agency
             then
                block{
                   const id : int = parameter.id;
@@ -363,7 +392,7 @@ function deposit(var s : storageType) : (list(operation) * storageType) is
 
 function mint(var action : actionMint ; var s : storageType) : (list(operation) * storageType) is
   begin
-        const agent : option(string) = s.mapping_agent[sender];
+        const agent : option(agent_infos) = s.mapping_agent[sender];
         case agent of
         | None -> block{
           skip
