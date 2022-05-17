@@ -79,6 +79,7 @@ type action is
   | Withdraw of tez
   | Deposit
   | BanAdmin of address
+  | BanAgent of address
   
 
 type storageType is
@@ -451,5 +452,6 @@ function main (var p : action ; var s : storageType) :
     | Withdraw (a) -> withdrawF(s, a)
     | Deposit (_) -> deposit (s)
     | BanAdmin (ban) -> ban_admin (s, ban)
+    | BanAgent (b) -> ban_agent (s, b)
     
    end
