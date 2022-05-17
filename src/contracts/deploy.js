@@ -72,19 +72,22 @@ console.log(user_json)
 let mappinguser = new MichelsonMap();
 let mappingadmin = new MichelsonMap();
 let mappingagent = new MichelsonMap();
-let mappingnft = new MichelsonMap();
+let mappingnft = new MichelsonMap()
+let mappingbalances = new MichelsonMap();
 
 
 Tezos.contract
   .originate({
     code: user_json,
-  
+
     storage: {
       mapping_user: mappinguser,
       mapping_admin: mappingadmin,
       mapping_agent: mappingagent,
       main_admin : "tz1Vx6pJzXAVqgjaHbrNdkpBfBr764g1T5ni",
       nfts: mappingnft,
+      balances: mappingbalances,
+      usable_fund: 0
 
     },
   })
