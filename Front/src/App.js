@@ -1,4 +1,6 @@
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import React, { useState } from 'react';
+import './App.css';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Navbar from './shared/Navbar';
 import Home from './components/Home';
 import About from './components/About';
@@ -7,14 +9,21 @@ import Property from './components/Property';
 import Footer from './shared/Footer';
 import Contact from './components/Contact';
 import NotFound from './components/NotFound';
+import Login from './components/Login';
+// import CreateAccount from './components/CreateAccount';
 
 function App() {
+  const [token, setToken] = useState();
+
+  // if(!token) {
+  //   return <Login setToken={setToken} />
+  // }
   return (
-    <Router>
-      <div className="App">
+    <div className="app">
+      <BrowserRouter>
         <Navbar />
         <Switch>
-          <Route exact path="/">
+          <Route exact path="/home">
             <Home />
           </Route>
           <Route exact path="/about">
@@ -32,10 +41,11 @@ function App() {
           <Route exact path="*">
             <NotFound />
           </Route>
+          
         </Switch>
         <Footer />
-      </div>
-    </Router>
+      </BrowserRouter>
+    </div>  
   );
 }
 
