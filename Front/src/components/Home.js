@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import '../styles/home.css';
 
 
@@ -12,7 +13,9 @@ const Home = () => {
             <p className="parag">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ipsam sit magni, perspiciatis itaque dolore quas,
              fugiat sunt non beatae impedit nostrum autem odit aut! Reprehenderit a debitis ut modi! Similique.</p>
 
-            <button className="btn">Details</button>
+            <button className="btn">
+                <Link to="/details" target="_blank" className="btn">Details</Link>
+            </button>
         </section>
      );
 }

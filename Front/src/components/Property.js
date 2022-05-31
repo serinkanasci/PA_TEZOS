@@ -1,21 +1,16 @@
 import '../styles/property.css';
-import PropertyHelper from '../shared/PropertyHelper';
+// import PropertiesHelper from '../shared/PropertiesHelper';
 
-const Property = () => {
+const Properties = () => {
 
     const params = "Lorem ipsum dolor sit amet consectetur adipisicing elit.";
 
     return ( 
-        <section className="properties">
+        <section className="property">
         <h1>Property</h1>
         <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea deserunt non voluptatibus laborum, corporis similique ad perspiciatis eum?</p>
-        <div className="all-cards">
-           <PropertyHelper image="assets/home3.png" info="Housing 1"/>
-           <PropertyHelper image="assets/home3.png" info="Housing 2"/>
-           <PropertyHelper image="assets/home3.png" info="Housing 3"/>           
-        </div>
-    </section>
-     );
+        </section>
+    );
 }
  
-export default Property;
+export default Properties;

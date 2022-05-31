@@ -1,6 +1,6 @@
-import '../styles/propertyhelper.css';
+import '../styles/propertieshelper.css';
 
-const PropertyHelper = ({image, info}) => {
+const PropertiesHelper = ({image, info}) => {
     return ( 
         <div className="card">
            <img className="image" src={image} alt=""/>    
@@ -9,4 +9,4 @@ const PropertyHelper = ({image, info}) => {
      );
 }
  
-export default PropertyHelper;
+export default PropertiesHelper;
