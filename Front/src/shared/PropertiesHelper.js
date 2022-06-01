@@ -1,6 +1,6 @@
-import '../styles/agenthelper.css';
+import '../styles/propertieshelper.css';
 
-const AgentHelper = ({image, info}) => {
+const PropertiesHelper = ({image, info}) => {
     return ( 
         <div className="card">
            <img className="image" src={image} alt=""/>    
@@ -9,4 +9,4 @@ const AgentHelper = ({image, info}) => {
      );
 }
  
-export default AgentHelper;
+export default PropertiesHelper;

@@ -43,11 +43,11 @@
 }
 
 .home1-logo {
-    max-width: 40%;
+    max-width: 35%;
     position: absolute;
     left: 3%;
-    bottom: 26%;
-    top: 25%;
+    bottom: 30%;
+    top: 20%;
 }
 
 .btns:active{

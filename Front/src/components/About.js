@@ -12,13 +12,11 @@ const About = () => {
     return (
         <>
             <h1 className="main-head">
-                We Are The Best<br/>Real Estate Company
+                We Are The Best<br/>CRYPTO<br/>Real Estate Company
             </h1>
             <p className="paras">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Rerum possimus, sequi odio modi ex neque
              nisi incidunt totam in repellat molestias cum! Nesciunt eos vel maiores aliquid voluptates voluptatum quod.</p>
-             <img src="/assets/home1.png" alt="home-image" className="home1-logo"/>
-             <button className="btns">View More Details</button>
-              
+             <img src="/assets/home1.png" alt="home-image" className="home1-logo"/>              
             <section className="about">
                 <h1 className="header">HOW IT WORKS</h1>
                 <div className="content">
