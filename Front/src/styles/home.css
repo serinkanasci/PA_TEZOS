@@ -41,14 +41,6 @@
     margin: 2% 70% 0% 0%;
 }
 
-.home-logo{
-    max-width: 35%;
-    position: absolute;
-    left: 50%;
-    bottom: 26%;
-    top: 20%;
-}
-
 .btn{
     margin: 3% 2% 3% 0%;
     background-color: rgb(76, 76, 76);
@@ -78,10 +70,6 @@
     margin-top: 16%;
     align-content: center;
     letter-spacing: 2px;
-}
-
-.home-logo{
-    display: none;
 }
 
 .add{
