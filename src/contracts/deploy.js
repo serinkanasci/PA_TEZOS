@@ -3,7 +3,8 @@ import { TezosToolkit, MichelsonMap } from '@taquito/taquito';
 
 import user_json from './FinancingPlan.json' assert {type: 'json'};
 
-const Tezos = new TezosToolkit('https://hangzhounet.smartpy.io/');
+// const Tezos = new TezosToolkit('https://hangzhounet.smartpy.io/');
+const Tezos = new TezosToolkit('https://testnet-tezos.giganode.io/');
 
 const pk = "";
 const signer = new InMemorySigner(pk);
