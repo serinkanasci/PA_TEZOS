@@ -46,7 +46,7 @@
     max-width: 35%;
     position: absolute;
     left: 3%;
-    bottom: 30%;
+    bottom: 26%;
     top: 20%;
 }
 
@@ -59,11 +59,7 @@
     transition: all 0.2s ease 0s;
 }
 
-
-
-
 @media  (max-width:960px){
-
 
 .home1-logo {
        display: none;

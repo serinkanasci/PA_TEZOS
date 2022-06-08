@@ -49,7 +49,6 @@ function App() {
           <Route exact path="*">
             <NotFound />
           </Route>
-          
         </Switch>
         <Footer />
       </BrowserRouter>
