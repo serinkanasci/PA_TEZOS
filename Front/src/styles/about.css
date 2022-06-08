@@ -43,11 +43,11 @@
 }
 
 .home1-logo {
-    max-width: 40%;
+    max-width: 35%;
     position: absolute;
     left: 3%;
     bottom: 26%;
-    top: 25%;
+    top: 20%;
 }
 
 .btns:active{
@@ -59,11 +59,7 @@
     transition: all 0.2s ease 0s;
 }
 
-
-
-
 @media  (max-width:960px){
-
 
 .home1-logo {
        display: none;

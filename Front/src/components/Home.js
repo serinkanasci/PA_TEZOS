@@ -12,7 +12,6 @@ const Home = () => {
             <h1 className="purples-sec">Properties</h1>
             <p className="parag">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ipsam sit magni, perspiciatis itaque dolore quas,
              fugiat sunt non beatae impedit nostrum autem odit aut! Reprehenderit a debitis ut modi! Similique.</p>
-
             <button className="btn">
                 <Link to="/details" target="_blank" className="btn">Details</Link>
             </button>

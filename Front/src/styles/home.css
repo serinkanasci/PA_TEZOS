@@ -38,14 +38,15 @@
 
 .parag {
     color: rgba(0, 0, 0, 0.678);
-    margin: 2% 61% 0% 0%;
+    margin: 2% 70% 0% 0%;
 }
 
 .home-logo{
-    max-width: 30%;
+    max-width: 35%;
     position: absolute;
     left: 50%;
-    bottom: 20%;
+    bottom: 26%;
+    top: 20%;
 }
 
 .btn{
@@ -70,7 +71,7 @@
 
 
 
-@media  (max-width:960px){
+@media  (max-width:600px){
 
 .home{
     font-family: 'Raleway', sans-serif;
@@ -116,7 +117,7 @@
 
 .parag {
     color: rgba(0, 0, 0, 0.678);
-    margin: 2% 5% 2% 4%;
+    margin: 2% 10% 2% 4%;
 }
 
 .btn{
