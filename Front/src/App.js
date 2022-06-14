@@ -13,6 +13,7 @@ import NotFound from './components/NotFound';
 import Details from './components/Details';
 import Login from './components/Login';
 // import CreateAccount from './components/CreateAccount';
+import Test from './Test';
 
 function App() {
   const [token, setToken] = useState();
@@ -27,6 +28,9 @@ function App() {
         <Switch>
           <Route exact path="/home">
             <Home />
+          </Route>
+          <Route exact path="/test">
+            <Test />
           </Route>
           <Route exact path="/about">
             <About />
@@ -45,6 +49,9 @@ function App() {
           </Route>
           <Route exact path="/property">
             <Property />
+          </Route>
+          <Route exact path="/login">
+            <Login />
           </Route>
           <Route exact path="*">
             <NotFound />
