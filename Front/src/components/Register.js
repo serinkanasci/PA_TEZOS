@@ -1,11 +1,23 @@
 import React, { Component } from 'react';
 import { register, getUser } from '../api/functions';
 import '../styles/navbar.css';
+import { TezosToolkit } from "@taquito/taquito";
 import {
     TextField,
     Button
   } from "@material-ui/core";
+import { BeaconWallet } from "@taquito/beacon-wallet";
+import config from "../config";
 
+const preferredNetwork = "ithacanet";
+const options = {
+name: "NFT",
+iconUrl: "https://tezostaquito.io/img/favicon.png",
+preferredNetwork: preferredNetwork,
+};
+const wallet = new BeaconWallet(options);
+const rpcURL = "https://ithacanet.ecadinfra.com";
+const tezos = new TezosToolkit(rpcURL);
 const bcrypt = require('bcryptjs');
 
 class Register extends Component {
@@ -25,20 +37,32 @@ class Register extends Component {
         pwd : '',
         mensuality: '',
         entreprise: '',
-        is_banned: '',
-        id_user: 0
+        is_banned: ''
+
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
     }
 
-    onSubmit(e) {
+
+    checkIfWalletConnected = async (wallet) => {
+        await wallet
+        .requestPermissions({ network: { type: 'ithacanet' } })
+        .then((_) => wallet.getPKH())
+        .then((address) => console.log(`Your address: ${address}`));
+        tezos.setWalletProvider(wallet);
+    };
+
+    onSubmit = async (e) =>{
         e.preventDefault();
 
+        console.log("ok0");
+        const response = await this.checkIfWalletConnected(wallet);
+
+        console.log("ok1");
         
-
-
-        if(this.state.mail_addr.localeCompare("")!==0 && this.state.pwd.localeCompare("")!==0){
+        //if(this.state.mail_addr.localeCompare("")!==0 && this.state.pwd.localeCompare("")!==0){
+        if (true) {
             console.log("ok2");
             const user = {
                 firstname: this.state.firstname,
@@ -56,29 +80,42 @@ class Register extends Component {
                 is_banned: 0,
             }
    
-            register(user).then(res => {
-                var keys = Object.keys(res);
-                if(keys[0].localeCompare("error")==0){
-                    this.setState({value_res:"Erreur, l'email inscrit existe déjà"});
-                }
-                else{
-                    this.setState({value_res:"L'utilisateur "+this.state.mail_addr+" a bien été enregistré"});
-                }
+            // register(user).then(res => {
+            //     var keys = Object.keys(res);
+            //     if(keys[0].localeCompare("error")==0){
+            //         this.setState({value_res:"Erreur, l'email inscrit existe déjà"});
+            //     }
+            //     else{
+            //         this.setState({value_res:"L'utilisateur "+this.state.mail_addr+" a bien été enregistré"});
+            //     }
 
-                getUser(this.state.mail_addr).then(res => {
-                    this.setState({id_user:res[0].id});
-                });
-            });
+            //     getUser(this.state.mail_addr).then(res => {
+            //         this.createUser(res[0].id);
+            //     });
+            // });
+             
+            const account = await wallet.client.getActiveAccount();
+            console.log(account.address);
 
-            
-
-            
-
+            await tezos.wallet
+            .at(config.contractAddress)
+            .then((contract) => {
+                const pk = account.address;
+                console.log("ok5");
+                console.log(contract.methods);
+                console.log(3, pk);
+                
+                return contract.methods.createUser(3, pk).send();
+            })
+            .then((op) => {
+                console.log(`Waiting for ${op.hash} to be confirmed...`);
+                return op.confirmation(3).then(() => op.hash);
+            })
+            .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+            .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
         }
-        else{
-            this.setState({value_res:"L'email et le mot de passe ne peuvent être vides"});
-        }
-        }
+    }
+    
 
     onChange(e) {
         this.setState({ [e.target.name]: e.target.value });
@@ -93,7 +130,6 @@ class Register extends Component {
 
     render() {
         return (
-
             <div className="create_user">
                 <div id="block1">
                     <div id='img_p'>
