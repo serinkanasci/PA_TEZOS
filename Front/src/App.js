@@ -12,6 +12,7 @@ import Contact from './components/Contact';
 import NotFound from './components/NotFound';
 import Details from './components/Details';
 import Login from './components/Login';
+import Register from './components/Register';
 // import CreateAccount from './components/CreateAccount';
 import Test from './Test';
 
@@ -26,6 +27,9 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <Switch>
+          <Route exact path="/register">
+            <Register />
+          </Route>
           <Route exact path="/home">
             <Home />
           </Route>

@@ -28,6 +28,16 @@ nav{
    
 }
 
+.form_profile{
+    width:250px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.button_save{
+   background-color: red;
+}
+
 .nav-item:hover{
     background-color: rgb(30, 117, 184);
     color: white;
