@@ -409,15 +409,10 @@ function deposit(var s : storageType) : (list(operation) * storageType) is
         const tmp : option(tez) = s.balances[Tezos.get_sender()];
         case tmp of [
         | None -> block{
-            skip
+            s.balances[Tezos.get_sender()] := Tezos.amount;
         }
         | Some(b) -> block { 
-            if b > Tezos.amount
-            then
-            block{
-              s.balances[Tezos.get_sender()] := b + Tezos.amount;
-            }
-            else failwith("Not enough money in the user wallet");
+            s.balances[Tezos.get_sender()] := b + Tezos.amount;
         }
         ];
       }
