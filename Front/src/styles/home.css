@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap');
+
+.home{
+    font-family: 'Raleway', sans-serif;
+    margin: 6% 2% 4% 6%;
+    align-content: center;
+    letter-spacing: 2px;
+}
+
+.add{
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.678);   
+}
+
+.blues-first {
+    margin: 0% 0% 5% 0%;
+    color: rgb(30, 117, 184);
+    font-size: 3rem;
+}
+
+.purples-first {
+    margin: 0% 0% 5% 2%;
+    color: rgb(76, 76, 76);
+    font-size: 3rem;
+}
+
+.blues-sec {
+    margin: 0% 0% 0% 4%;
+    color: rgb(30, 117, 184);
+    font-size: 3rem;
+}
+
+.purples-sec{
+    margin: 0% 0% 3% 0%;
+    color: rgb(76, 76, 76);
+    font-size: 3rem;
+}
+
+.parag {
+    color: rgba(0, 0, 0, 0.678);
+    margin: 2% 70% 0% 0%;
+}
+
+.btn{
+    margin: 3% 2% 3% 0%;
+    background-color: rgb(76, 76, 76);
+    color: white;
+    border-radius: 14%;
+    align-content: center;
+    padding: 1%;
+    font-size: 22px;
+    border: none;
+}
+
+.btn:active{
+    background-color: rgb(30, 117, 184);
+    color: white;
+    text-decoration: none;
+    border: none;
+    transform: scale(1.2);
+    transition: all 0.2s ease 0s;
+}
+
+
+
+@media  (max-width:600px){
+
+.home{
+    font-family: 'Raleway', sans-serif;
+    margin-top: 16%;
+    align-content: center;
+    letter-spacing: 2px;
+}
+
+.add{
+   
+    margin: 0% 0% 0% 32%;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.678);
+}
+
+.purples-first{
+    margin: 0% 0% 5% 6%;
+    color: rgb(76, 76, 76);
+    font-size: 3rem;
+}
+
+.purples-sec{
+    margin: 0% 0% 5% 9%;
+    color: rgb(76, 76, 76);
+    font-size: 3rem;
+}
+
+.blues-first{
+    margin: 0% 0% 5% 11%;
+    color: rgb(30, 117, 184);
+    font-size: 3rem;
+}
+
+.blues-sec{
+    margin: 0% 0% 0% 30%;
+    color:  rgb(30, 117, 184);
+    font-size: 3rem;
+}
+
+.parag {
+    color: rgba(0, 0, 0, 0.678);
+    margin: 2% 10% 2% 4%;
+}
+
+.btn{
+    margin: 3% 2% 3% 39%;
+    background-color: rgb(76, 76, 76);
+    color: white;
+    border-radius: 14%;
+    align-content: center;
+    padding: 2%;
+    border: none;
+}
+
+}

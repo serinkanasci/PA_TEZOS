@@ -1,0 +1,47 @@
+.properties{
+    margin: 4% 1% 8% 1%;
+    
+}
+
+.properties h1 {
+    margin: 1% 1% 3% 44%;
+    font-size: 4rem;
+    font-weight: 600;
+}
+
+.properties p {
+    margin: 1% 1% 3% 23%;
+    font-size: 14px;
+    
+}
+
+.all-cards{
+    margin: 1% 1% 5% 1%;
+    display: flex;
+    min-width: min-content;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+@media  (max-width:960px){
+
+    .properties h1 {
+        margin: 1% 6% 3% 22%;
+        font-size: 4rem;
+        font-weight: 600;
+    }
+
+    .properties p {
+        margin: 1% 6% 3% 16%;
+        font-size: 14px;
+    }
+
+    .all-cards{
+        margin: 1% 5% 5% 5%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
+}

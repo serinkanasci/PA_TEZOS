@@ -90,20 +90,20 @@ type storageType is
     main_admin: address;
     nfts: nfts;
     balances:balances;
-    usable_fund: usable_fund;
+    usable_fund: tez;
   ]
 
 type return is list (operation) * storageType
 
 function isAdmin (const s : address) : bool is
-	block {skip} with (sender = s)
+	block {skip} with (Tezos.get_sender() = s)
 
 function ban_admin(var store : storageType; var public_key: address) : (list(operation) * storageType) is 
   block {
         if(isAdmin(store.main_admin)) then
 			block{
 				const public_key : address = public_key;
-                case store.mapping_admin[public_key] of
+                case store.mapping_admin[public_key] of [
                     | None -> block{
                         skip
                     }
@@ -111,7 +111,7 @@ function ban_admin(var store : storageType; var public_key: address) : (list(ope
                         store.mapping_admin[public_key] := True;
                         skip
                     }
-                end
+                ];
 			}
 		else failwith("You are not admin");
   }
@@ -124,7 +124,7 @@ function ban_agent(var store : storageType; var public_key: address) : (list(ope
 			block{
 				const public_key : address = public_key;
         const record_agent : option(agent_infos) = store.mapping_agent[public_key];
-        case record_agent of
+        case record_agent of [
         | None -> block{
             skip
         }
@@ -134,7 +134,7 @@ function ban_agent(var store : storageType; var public_key: address) : (list(ope
             const new_record_agent: agent_infos = record [ agency = agency; is_ban = is_ban;];
             store.mapping_agent[public_key] := new_record_agent;
         }
-        end;
+        ];
 			}
 		else failwith("You are not admin");
   }
@@ -143,7 +143,7 @@ function ban_agent(var store : storageType; var public_key: address) : (list(ope
 function create_user(var store : storageType; var parameter: input_user_infos) : (list(operation) * storageType) is 
   block {
       const id : int = parameter.id;
-      case store.mapping_user[id] of
+      case store.mapping_user[id] of [
         | Some (_bool) -> block {
           skip
         }
@@ -154,7 +154,7 @@ function create_user(var store : storageType; var parameter: input_user_infos) :
             store.mapping_user[id] := new_user_infos;
           skip
         }
-        end
+        ];
   }
   with ((nil: list(operation)) , store)
 
@@ -163,7 +163,7 @@ function create_admin(var store : storageType; var public_key: address) : (list(
       if(isAdmin(store.main_admin)) then
 			block{
 				const public_key : address = public_key;
-            case store.mapping_admin[public_key] of
+            case store.mapping_admin[public_key] of [
                 | Some (_bool) -> block {
                     skip
                 }
@@ -171,7 +171,7 @@ function create_admin(var store : storageType; var public_key: address) : (list(
                     store.mapping_admin[public_key] := False;
                     skip
                 }
-                end
+                ];
 			}
 		else failwith("You are not admin");
   }
@@ -179,14 +179,14 @@ function create_admin(var store : storageType; var public_key: address) : (list(
 
 function create_agent(var store : storageType; var parameter: input_agent_infos) : (list(operation) * storageType) is 
   block {
-        const admin : option(bool) = store.mapping_admin[sender];
-        case admin of
+        const admin : option(bool) = store.mapping_admin[Tezos.get_sender()];
+        case admin of [
         | None -> block{
             skip
         }
         | Some(_a) -> block { 
           const public_key : address = parameter.public_key;
-          case store.mapping_agent[public_key] of
+          case store.mapping_agent[public_key] of [
             | Some (_bool) -> block {
               skip
             }
@@ -197,16 +197,16 @@ function create_agent(var store : storageType; var parameter: input_agent_infos)
             store.mapping_agent[public_key] := new_record_agent;
             skip
             }
-          end
+          ];
         }
-        end;      
+        ];      
   }
   with ((nil: list(operation)) , store)
 
 function validation_financing_plan(var store : storageType; var parameter: input_user_infos_validation) : (list(operation) * storageType) is 
   block {
-      const agent : option(agent_infos) = store.mapping_agent[sender];
-        case agent of
+      const agent : option(agent_infos) = store.mapping_agent[Tezos.get_sender()];
+        case agent of [
         | None -> block{
             skip
         }
@@ -215,13 +215,13 @@ function validation_financing_plan(var store : storageType; var parameter: input
             then
                block{
                   const id : int = parameter.id;
-                  case store.mapping_user[id] of
+                  case store.mapping_user[id] of [
                   | Some (_bool) -> block {
                       const id : int = parameter.id;
                       const validation : validation = parameter.validation;
                   
                       const record_user : option(user_infos) = store.mapping_user[id];
-                      case record_user of
+                      case record_user of [
                       | None -> block{
                           skip
                       }
@@ -230,47 +230,62 @@ function validation_financing_plan(var store : storageType; var parameter: input
                           const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
                           store.mapping_user[id] := new_record_user;
                       }
-                      end;
+                      ];
                       
                     skip
                   }
                   | None -> block {
                     skip
                   }
-                  end
+                  ];
                 }
              else failwith("you are not an agent");
           }
-         end;
+        ];
 	}
   with ((nil: list(operation)) , store)
 
 function withdrawF(var s : storageType; var parameter: tez) : (list(operation) * storageType) is 
   block {
-    const tmp : option(tez) = s.balances[sender];
-    case tmp of
+    const tmp : option(tez) = s.balances[Tezos.get_sender()];
+    case tmp of [
     | None -> block{
         skip
     }
     | Some(b) -> block { 
-        if sender = s.main_admin and s.usable_fund > parameter
+        if Tezos.get_sender() = s.main_admin and s.usable_fund > parameter
         then
         block{
-          const receiver: contract(unit) = get_contract(sender);
-          const _payoutOperation: operation = transaction(unit, parameter, receiver);
-          s.usable_fund := s.usable_fund - parameter;
+          const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
+          const _payoutOperation: operation = Tezos.transaction(unit, parameter, receiver);
+          const result : option(tez) = s.usable_fund - parameter;
+          case result of [
+            | None -> block{
+                skip
+            }
+            | Some(u) -> block { 
+                s.usable_fund := u
+            }
+        ];
         }
         else if b > parameter
           then
           block{
-            const receiver: contract(unit) = get_contract(sender);
-            const _payoutOperation: operation = transaction(unit, parameter, receiver);
-            s.balances[sender] := b - parameter;
-
+            const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
+            const _payoutOperation: operation = Tezos.transaction(unit, parameter, receiver);
+            const result : option(tez) = b - parameter;
+            case result of [
+                | None -> block{
+                    skip
+                }
+                | Some(r) -> block { 
+                    s.balances[Tezos.get_sender()] := r
+                }
+            ];
           }
           else skip;
     }
-    end;
+    ];
     
         
     //storage.balance := storage.balance - withdrawAmount;              
@@ -281,11 +296,11 @@ function pay_validation(var store : storageType; var parameter: int) : (list(ope
     if(isAdmin(store.main_admin)) then
 			block{
 				const id : int = parameter;
-      case store.mapping_user[id] of
+      case store.mapping_user[id] of [
         | Some (_bool) -> block {
             const id : int = parameter;
             const record_user : option(user_infos) = store.mapping_user[id];
-            case record_user of
+            case record_user of [
             | None -> block{
                 skip
             }
@@ -294,8 +309,8 @@ function pay_validation(var store : storageType; var parameter: int) : (list(ope
                   then
                   block{
                     const tot : tez = d.validation.mensualities_price + d.validation.contribution;
-                    const tmp : option(tez) = store.balances[sender];
-                    case tmp of
+                    const tmp : option(tez) = store.balances[Tezos.get_sender()];
+                    case tmp of [
                     | None -> block{
                         skip
                     }
@@ -310,7 +325,16 @@ function pay_validation(var store : storageType; var parameter: int) : (list(ope
                               const validation : validation = record [active= False; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
                               const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
                               store.mapping_user[id] := new_record_user;
-                              store.balances[sender] := b - (d.validation.mensualities_price+d.validation.contribution);
+                              const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
+                              case result of [
+                                | None -> block{
+                                    skip
+                                }
+                                | Some(amount) -> block { 
+                                    store.balances[Tezos.get_sender()] := amount
+                                }
+                              ];
+                              //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
                               store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
                             }
                             else
@@ -319,25 +343,34 @@ function pay_validation(var store : storageType; var parameter: int) : (list(ope
                               const validation : validation = record [active= True; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
                               const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
                               store.mapping_user[id] := new_record_user;
-                              store.balances[sender] := b - (d.validation.mensualities_price+d.validation.contribution);
+                              const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
+                              case result of [
+                                | None -> block{
+                                    skip
+                                }
+                                | Some(amount) -> block { 
+                                    store.balances[Tezos.get_sender()] := amount
+                                }
+                              ];
+                              //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
                               store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
                             }
                           
                         }
                         else failwith("Not enough money in the user wallet");
                     }
-                    end;
+                    ];
                   }
                   else skip;
             }
-            end;
+            ];
             
           skip
         }
         | None -> block {
           skip
         }
-        end
+        ];
 			}
 		else failwith("You are not admin");
       
@@ -370,59 +403,54 @@ function deposit(var s : storageType) : (list(operation) * storageType) is
 
     // else skip;
 
-    if amount > 0tz
+    if Tezos.amount > 0tz
       then
       block{
-        const tmp : option(tez) = s.balances[sender];
-        case tmp of
+        const tmp : option(tez) = s.balances[Tezos.get_sender()];
+        case tmp of [
         | None -> block{
-            skip
+            s.balances[Tezos.get_sender()] := Tezos.amount;
         }
         | Some(b) -> block { 
-            if b > amount
-            then
-            block{
-              s.balances[sender] := b + amount;
-            }
-            else failwith("Not enough money in the user wallet");
+            s.balances[Tezos.get_sender()] := b + Tezos.amount;
         }
-        end;
+        ];
       }
       else skip;
   end with ((nil: list(operation)) , s)
 
 function mint(var action : actionMint ; var s : storageType) : (list(operation) * storageType) is
   begin
-        const agent : option(agent_infos) = s.mapping_agent[sender];
-        case agent of
+        const agent : option(agent_infos) = s.mapping_agent[Tezos.get_sender()];
+        case agent of [
         | None -> block{
           skip
         }
         | Some(_b) -> block { 
-          case s.nfts[action.nftToMintId] of 
-    | None -> s.nfts[action.nftToMintId] := action.nftToMint
-    | Some(_x) -> skip // fail "I've seen that token id before."
-    end
+          case s.nfts[action.nftToMintId] of [ 
+            | None -> s.nfts[action.nftToMintId] := action.nftToMint
+            | Some(_x) -> skip // fail "I've seen that token id before."
+          ];
         }
-        end;
+        ];
   end with ((nil: list(operation)) , s)
 
 function transfer(var action : actionTransfer ; var s : storageType) : (list(operation) * storageType) is
   begin
     const record_nft : option(nft) = s.nfts[action.nftToTransfer];
-    case record_nft of
+    case record_nft of [
     | None -> block{
         skip
     }
     | Some(d) -> block { 
-        if action.destination = sender
+        if action.destination = Tezos.get_sender()
             then skip // fail "What's the purpose?"
         else
-        if d.owner = sender 
+        if d.owner = Tezos.get_sender() 
             then 
             block{
                 const record_user : option(nft) = s.nfts[action.nftToTransfer];
-                case record_user of
+                case record_user of [
                 | None -> block{
                     skip
                 }
@@ -431,17 +459,17 @@ function transfer(var action : actionTransfer ; var s : storageType) : (list(ope
                   const new_record_user: nft = record [ owner = action.destination; address_uri = addr;];
                   s.nfts[action.nftToTransfer] := new_record_user;
                 }
-            end;
+            ];
             }
         else skip // fail "Token is not yours."
     }
-    end;
+    ];
   end with ((nil: list(operation)) , s)
 
 function main (var p : action ; var s : storageType) :
   (list(operation) * storageType) is
   block { skip } with
-  case p of
+  case p of [
       CreateUser (n) -> create_user (s, n)
     | CreateAdmin (ur) -> create_admin (s, ur)
     | CreateAgent (fp) -> create_agent (s, fp)
@@ -453,5 +481,5 @@ function main (var p : action ; var s : storageType) :
     | Deposit (_) -> deposit (s)
     | BanAdmin (ban) -> ban_admin (s, ban)
     | BanAgent (b) -> ban_agent (s, b)
-    
-   end
+   ];
+
