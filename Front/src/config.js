@@ -1,5 +1,5 @@
 const config = {
-  contractAddress: "KT1B7FZnaZAMT1outWuZAvDi5fUVRVAHSgir",
+  contractAddress: "KT1R4NUmwf1BFHRamf3GyiN7yQZCGWqDBFfZ",
 };
 
 export default config;
