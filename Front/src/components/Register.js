@@ -37,7 +37,8 @@ class Register extends Component {
         pwd : '',
         mensuality: '',
         entreprise: '',
-        is_banned: ''
+        is_banned: '',
+        error: ''
 
         }
         this.onChange = this.onChange.bind(this);
@@ -55,14 +56,9 @@ class Register extends Component {
 
     onSubmit = async (e) =>{
         e.preventDefault();
-
-        console.log("ok0");
-        const response = await this.checkIfWalletConnected(wallet);
-
-        console.log("ok1");
+        await this.checkIfWalletConnected(wallet);
         
-        //if(this.state.mail_addr.localeCompare("")!==0 && this.state.pwd.localeCompare("")!==0){
-        if (true) {
+        if(this.state.mail_addr.localeCompare("")!==0 && this.state.pwd.localeCompare("")!==0){
             console.log("ok2");
             const user = {
                 firstname: this.state.firstname,
@@ -79,21 +75,26 @@ class Register extends Component {
                 entreprise: this.state.entreprise,
                 is_banned: 0,
             }
-   
-            // register(user).then(res => {
-            //     var keys = Object.keys(res);
-            //     if(keys[0].localeCompare("error")==0){
-            //         this.setState({value_res:"Erreur, l'email inscrit existe déjà"});
-            //     }
-            //     else{
-            //         this.setState({value_res:"L'utilisateur "+this.state.mail_addr+" a bien été enregistré"});
-            //     }
 
-            //     getUser(this.state.mail_addr).then(res => {
-            //         this.createUser(res[0].id);
-            //     });
-            // });
-             
+            const id_int = 0;
+   
+            register(user).then(res => {
+                var keys = Object.keys(res);
+                if(keys[0].localeCompare("error")==0){
+                    this.setState({value_res:"Erreur, l'email inscrit existe déjà"});
+                }
+                else{
+                    this.setState({value_res:"L'utilisateur "+this.state.mail_addr+" a bien été enregistré"});
+                }
+                
+                getUser(this.state.mail_addr).then(res => {
+                    id_int = res[0].id;
+                });
+
+                
+            });
+            
+
             const account = await wallet.client.getActiveAccount();
             console.log(account.address);
 
@@ -105,7 +106,7 @@ class Register extends Component {
                 console.log(contract.methods);
                 console.log(3, pk);
                 
-                return contract.methods.createUser(3, pk).send();
+                return contract.methods.createUser(id_int, pk).send();
             })
             .then((op) => {
                 console.log(`Waiting for ${op.hash} to be confirmed...`);
@@ -113,6 +114,11 @@ class Register extends Component {
             })
             .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
             .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+            
+            
+        }
+        else{
+            this.setState({error:"Please fulfill the email and password"})
         }
     }
     
@@ -174,6 +180,7 @@ class Register extends Component {
                             onChange={this.onChange}
                             />
                             <br />
+                            <p>Birthdate :</p>
                             <TextField
                             style={{ width: "200px", margin: "5px" }}
                             type="date"
@@ -233,7 +240,7 @@ class Register extends Component {
                             onChange={this.onChange}
                             />
                             <br />
-                            <TextField
+                            {/* <TextField
                             style={{ width: "200px", margin: "5px" }}
                             type="date"
                             variant="outlined"
@@ -241,7 +248,7 @@ class Register extends Component {
                             value={this.state.mensuality}
                             onChange={this.onChange}
                             />
-                            <br />
+                            <br /> */}
                             <TextField
                             style={{ width: "200px", margin: "5px" }}
                             type="text"
@@ -252,7 +259,7 @@ class Register extends Component {
                             onChange={this.onChange}
                             />
                             <br />
-                            <TextField
+                            {/* <TextField
                             style={{ width: "200px", margin: "5px" }}
                             type="text"
                             variant="outlined"
@@ -261,10 +268,11 @@ class Register extends Component {
                             value={this.state.is_banned}
                             onChange={this.onChange}
                             />
-                            <br />
+                            <br /> */}
                             <Button type="submit" style={{ marginLeft:"25%" }} variant="contained" color="primary">
                                 save
                             </Button>
+                            <p style={{color:"red"}} >{this.state.error}</p>
                         </form>
                     </div>
                 </div>

@@ -36,7 +36,7 @@ async function loginUser(credentials) {
                 <input type="text" placeholder="username" onChange={e => setUserName(e.target.value)} />
                 <input type="password" placeholder="password" onChange={e => setPassword(e.target.value)} />
                 <button type="submit">login</button>
-                <p class="message">Not registered? <a href="CreateAccount">Create an account</a></p>
+                <p class="message">Not registered? <a href="http://localhost:3000/register">Create an account</a></p>
                 </form>
             </div>
             </div>
