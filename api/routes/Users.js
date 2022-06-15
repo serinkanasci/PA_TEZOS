@@ -3,38 +3,11 @@ const users = express.Router()
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-
+var basicAuth = require("express-basic-auth")
 const User = require('../models/User')
-const UserAgent = require('../models/UserAgent')
 const FinancingPlan = require('../models/FinancingPlan')
 const Nft = require('../models/Nft')
 const Etps = require('../models/Etps')
-
-var nodemailer = require('nodemailer');
-var fs = require('fs');
-
-var multer  = require('multer');
-const Etps = require('../models/Etps')
-var storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, process.env.PATH_FILE);
-    },
-    filename: (req, file, cb) => {
-      console.log(file);
-      var filetype = '';
-      if(file.mimetype === 'image/gif') {
-        filetype = 'gif';
-      }
-      if(file.mimetype === 'image/png') {
-        filetype = 'png';
-      }
-      if(file.mimetype === 'image/jpeg') {
-        filetype = 'jpg';
-      }
-      cb(null, 'image-' + Date.now() + '.' + filetype);
-    }
-});
-var upload = multer({storage: storage});
 
 
 
@@ -42,25 +15,6 @@ var upload = multer({storage: storage});
 users.use(cors())
 
 process.env.SECRET_KEY = 'secret'
-
-
-const ipfilter = require('express-ipfilter-secured').IpFilter
-
-const ips = ['::ffff:']
-
-
-users.get('/check/:check',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
-  var check = req.params.check;
-  try {
-    jwt.verify(check, process.env.SECRET_KEY);
- } catch(ex) {
-   res.send('error')
- }
-  res.send("ok");
-
-})
-
-
 
 function myAuthorizer(username, password) {
     const userMatches = basicAuth.safeCompare(username, process.env.ID)
@@ -84,9 +38,9 @@ users.post('/register',basicAuth( { authorizer: myAuthorizer } ), (req, res) => 
     phone_number: req.body.phone_number,
     mail_addr: req.body.mail_addr,
     pwd: req.body.pwd,
-    public_key: req.body.public_key,
     mensuality: req.body.mensuality,
     birth_date: req.body.birth_date,
+    entreprise: req.body.entreprise,
     is_banned: req.body.is_banned
   }
 
@@ -178,7 +132,7 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
     phone_number: req.body.phone_number,
     mail_addr: req.body.mail_addr,
     pwd: req.body.pwd,
-    public_key: req.body.public_key,
+    entreprise: req.body.entreprise,
     mensuality: req.body.mensuality,
     birth_date: req.body.birth_date,
     is_banned: req.body.is_banned
@@ -202,7 +156,7 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
             phone_number: req.body.phone_number,
             mail_addr: req.body.mail_addr,
             pwd: req.body.pwd,
-            public_key: req.body.public_key,
+            entreprise: req.body.entreprise,
             mensuality: req.body.mensuality,
             birth_date: req.body.birth_date,
             is_banned: req.body.is_banned
@@ -472,146 +426,6 @@ users.put('/update_etp/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res
   
     })
 
-
-
-// User Agent
-
-
-users.post('/create_user_agent',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
-  
-  const user_agentData = {
-    id: req.body.id,
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    phone_number: req.body.phone_number,
-    mail_addr: req.body.mail_addr,
-    pwd: req.body.pwd,
-    public_key: req.body.public_key,
-    entreprise: req.body.entreprise,
-    is_banned: req.body.is_banned
-  }
-
-
-  UserAgent.findOne({
-    where: {
-      mail_addr: req.body.mail_addr
-    }
-  })
-    .then(user_agent => {
-      if (!user_agent) {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          user_agentData.password = hash
-          UserAgent.create(user_agentData)
-            .then(user_agent => {
-              res.json({ status: user_agent.mail_addr + ' Registered!' })
-            })
-            .catch(err => {
-              res.send('error: ' + err)
-            })
-        })
-      } else {
-        res.json({ error: 'User Agent with this mail address already exists' })
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-
-
-
-users.get('/user_agents', basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
-  UserAgent.findAll({
-  })
-    .then(user_agent => {
-      if (user_agent) {
-        res.json(user_agent)
-      } else {
-        res.send('No one')
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-
-
-users.get('/user_agent/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
-  var r_id = req.params.id;
-
-  UserAgent.findAll({
-    where: {
-      id: r_id
-    }
-  })
-    .then(user_agent => {
-      if (user_agent) {
-        res.json(user_agent)
-      } else {
-        res.send('User Agent does not exist')
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-
-users.delete('/delete_user_agent/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
-
-  var r_id = req.params.id;
-
-  UserAgent.destroy({where: {
-      id: r_id
-    }}).then(function () { res.send('Ok') });
-})
-
-
-
-users.put('/update_user_agent/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
-  var check = req.params.id;
-  const user_agentData = {
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    phone_number: req.body.phone_number,
-    mail_addr: req.body.mail_addr,
-    pwd: req.body.pwd,
-    public_key: req.body.public_key,
-    entreprise: req.body.entreprise,
-    is_banned: req.body.is_banned
-  }
-
-  UserAgent.findOne({
-    where: {
-      id: check
-    }
-  })
-    .then(user_agent => {
-      if (user_agent) {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          user_agent.update({
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            phone_number: req.body.phone_number,
-            mail_addr: req.body.mail_addr,
-            pwd: req.body.pwd,
-            public_key: req.body.public_key,
-            entreprise: req.body.entreprise,
-            is_banned: req.body.is_banned
-
-        });
-
-        res.json(user_agent);
-        })
-      } else {
-        res.send('User Agent does not exist');
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err);
-    })
-
-
-  })
 
 
 
