@@ -1,0 +1,65 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS devis;
+DROP TABLE IF EXISTS commande;
+DROP TABLE IF EXISTS presta;
+DROP TABLE IF EXISTS facture;
+DROP TABLE IF EXISTS Etps_img;
+DROP TABLE IF EXISTS detail;
+
+
+CREATE TABLE IF NOT EXISTS users(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    lastname VARCHAR(100) NOT NULL,
+    firstname VARCHAR(100) NOT NULL,
+    birth_date TIMESTAMP NOT NULL,
+    post_addr VARCHAR(200) NOT NULL,
+    country VARCHAR(200) NOT NULL,
+    city VARCHAR(200) NOT NULL,
+	street_addr VARCHAR(200) NOT NULL,
+    phone_number VARCHAR(200) NOT NULL,
+    mail_addr VARCHAR(200) NOT NULL,
+    pwd VARCHAR(200) NOT NULL,
+    public_key INT NOT NULL,
+    mensuality TIMESTAMP,
+    is_banned BOOLEAN NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS etps(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	access_code INT NOT NULL,
+    entreprise VARCHAR(200) NOT NULL,
+    is_banned BOOLEAN NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_agents(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    lastname VARCHAR(100) NOT NULL,
+    firstname VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(200) NOT NULL,
+    mail_addr VARCHAR(200) NOT NULL,
+    pwd VARCHAR(200) NOT NULL,
+    entreprise VARCHAR(200) NOT NULL,
+    public_key VARCHAR(200) NOT NULL,
+    is_banned BOOLEAN NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS financing_plan(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    rate_interest FLOAT NOT NULL,
+    rate_insurance FLOAT NOT NULL,
+    yearly_income FLOAT NOT NULL,
+    contribution FLOAT NOT NULL,
+    monthly_loan FLOAT NOT NULL,
+    housing_price FLOAT NOT NULL,
+    user_risk FLOAT NOT NULL,
+    age INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS nft(
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    nftId INT NOT NULL,
+    creator_etps VARCHAR(200) NOT NULL,
+    price FLOAT NOT NULL
+
+);
+
