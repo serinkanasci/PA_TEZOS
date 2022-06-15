@@ -247,28 +247,29 @@ function validation_financing_plan(var store : storageType; var parameter: input
 
 function withdrawF(var s : storageType; var parameter: tez) : (list(operation) * storageType) is 
   block {
+    if Tezos.get_sender() = s.main_admin and s.usable_fund > parameter
+    then
+    block{
+        const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
+        const _payoutOperation: operation = Tezos.transaction(unit, parameter, receiver);
+        const result : option(tez) = s.usable_fund - parameter;
+        case result of [
+        | None -> block{
+            skip
+        }
+        | Some(u) -> block { 
+            s.usable_fund := u
+        }
+    ];
+    }
+    else block {
     const tmp : option(tez) = s.balances[Tezos.get_sender()];
     case tmp of [
     | None -> block{
         skip
     }
     | Some(b) -> block { 
-        if Tezos.get_sender() = s.main_admin and s.usable_fund > parameter
-        then
-        block{
-          const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
-          const _payoutOperation: operation = Tezos.transaction(unit, parameter, receiver);
-          const result : option(tez) = s.usable_fund - parameter;
-          case result of [
-            | None -> block{
-                skip
-            }
-            | Some(u) -> block { 
-                s.usable_fund := u
-            }
-        ];
-        }
-        else if b > parameter
+        if b > parameter
           then
           block{
             const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
@@ -284,8 +285,9 @@ function withdrawF(var s : storageType; var parameter: tez) : (list(operation) *
             ];
           }
           else skip;
-    }
+        }
     ];
+    }
     
         
     //storage.balance := storage.balance - withdrawAmount;              
@@ -403,7 +405,7 @@ function deposit(var s : storageType) : (list(operation) * storageType) is
 
     // else skip;
 
-    if isAdmin(Tezos.get_sender())
+    if isAdmin(s.main_admin)
       then 
       block{
         s.usable_fund := s.usable_fund + Tezos.get_amount();
