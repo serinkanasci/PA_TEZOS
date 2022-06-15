@@ -13,6 +13,7 @@ import NotFound from './components/NotFound';
 import Details from './components/Details';
 import Login from './components/Login';
 import Register from './components/Register';
+import PrivateRoute from './PrivateRoute';
 // import CreateAccount from './components/CreateAccount';
 import Test from './Test';
 
@@ -33,9 +34,7 @@ function App() {
           <Route exact path="/home">
             <Home />
           </Route>
-          <Route exact path="/test">
-            <Test />
-          </Route>
+          <PrivateRoute exact path="/test" component={Test} authed={localStorage.getItem('user')} />
           <Route exact path="/about">
             <About />
           </Route>

@@ -40,7 +40,6 @@ export const register = user => {
           method: 'post',
           url: process.env.REACT_APP_BACK+'/users/register',
           data: {
-            id: user.id,
             firstname: user.firstname,
             lastname: user.lastname,
             post_addr: user.post_addr,
@@ -50,7 +49,6 @@ export const register = user => {
             phone_number: user.phone_number,
             mail_addr: user.mail_addr,
             pwd: user.pwd,
-            mensuality: user.mensuality,
             birth_date: user.birth_date,
             entreprise: user.entreprise,
             is_banned: user.is_banned
@@ -67,6 +65,65 @@ export const register = user => {
 	      	console.log(err);
 
 	    })
+}
+
+export const profile = () => {
+	
+	return axios({
+          method: 'get',
+          url: process.env.REACT_APP_BACK+'/users/profile',
+          headers:{
+                Authorization : localStorage.getItem('usertoken')
+          
+         } })
+	    .then(response => {
+	      
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	      	
+	    })
+
+
+}
+
+export const login = user => {
+	
+	return axios({
+          method: 'post',
+          url: process.env.REACT_APP_BACK+'/users/login',
+          data: {
+            mail_addr: user.mail_addr,
+	      	  pwd: user.pwd
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	  password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      	localStorage.setItem('usertoken', response.data);
+	      
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	      	if(typeof err.response.status != undefined){
+	      		if(err.response.status === 429){
+	      			user.ok = 429;
+	      	}
+	      	if(err.response.status === 400){
+	      			user.ok = 400;
+	      	}
+	      	if(err.response.status === 401){
+	      			user.ok = 401;
+	      	}
+	      	}
+	      	
+	    })
+
+
 }
 
 export const deleteUser = user => {
@@ -161,7 +218,6 @@ export const createEtp = etps => {
           method: 'post',
           url: process.env.REACT_APP_BACK+'/users/createEtp',
           data: {
-            id: etps.id,
             access_code: etps.access_code,
             entreprise: etps.entreprise,
             is_banned: etps.is_banned
@@ -263,7 +319,6 @@ export const createFPlan = financing_plan => {
           method: 'post',
           url: process.env.REACT_APP_BACK+'/users/create_financing_plan',
           data: {
-            id: financing_plan.id,
             rate_interest: financing_plan.rate_interest,
             rate_insurance: financing_plan.rate_insurance,
             yearly_income: financing_plan.yearly_income,

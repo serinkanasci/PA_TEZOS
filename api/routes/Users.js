@@ -25,10 +25,38 @@ function myAuthorizer(username, password) {
 
 // User 
 
+
+
+users.get('/profile', (req, res) => {
+  let bearer = req.headers['authorization'];
+  if(bearer.startsWith('Bearer ')){
+      let test = bearer.replace('Bearer ','');
+      var decoded = jwt.verify(test, process.env.SECRET_KEY);
+  }
+  else{
+      var decoded = jwt.verify(bearer, process.env.SECRET_KEY);
+  }
+
+  User.findOne({
+    where: {
+      id: decoded.id
+    }
+  })
+    .then(user => {
+      if (user) {
+        res.json(user)
+      } else {
+        res.send('User does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
 users.post('/register',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
   
   const userData = {
-    id: req.body.id,
     firstname: req.body.firstname,
     lastname: req.body.lastname,
     post_addr: req.body.post_addr,
@@ -52,8 +80,8 @@ users.post('/register',basicAuth( { authorizer: myAuthorizer } ), (req, res) => 
   })
     .then(user => {
       if (!user) {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          userData.password = hash
+        bcrypt.hash(req.body.pwd, 10, (err, hash) => {
+          userData.pwd = hash
           User.create(userData)
             .then(user => {
               res.json({ status: user.mail_addr + ' Registered!' })
@@ -94,7 +122,7 @@ users.get('/user/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
 
   User.findAll({
     where: {
-      id: r_id
+      mail_addr: r_id
     }
   })
     .then(user => {
@@ -177,12 +205,39 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
   })
 
 
+  users.post('/login'/*,ipfilter(ips, {detectIp: customDetection, mode:"deny"})*/,basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
+    
+    User.findOne({
+      where: {
+        mail_addr: req.body.mail_addr
+      }
+    })
+      .then(user => {
+        if (user) {
+          if (bcrypt.compareSync(req.body.pwd, user.pwd)) {
+            let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
+              expiresIn: 1800
+            })
+            res.send(token)
+          }
+          else{
+            res.status(401).json({ error: 'Password does not exist' })
+          }
+        }
+         else {
+          res.status(400).json({ error: 'User does not exist' })
+        }
+      })
+      .catch(err => {
+        res.status(400).json({ error: err })
+      })
+  })
+
 // Entreprises 
 
 users.post('/createEtp',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
   
   const etpData = {
-    id: etps.id,
     access_code: req.body.access_code,
     entreprise: req.body.entreprise,
     is_banned: req.body.is_banned

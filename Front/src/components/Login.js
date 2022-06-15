@@ -1,41 +1,134 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-
+import React, { Component } from 'react';
+import { login, profile } from '../api/functions';
 import '../styles/login.css';
+import Auth from '../auth/Auth';
 
-async function loginUser(credentials) {
-    return fetch('http://localhost:8080/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(credentials)
+class Login extends Component {
+  _isMounted = false;
+
+  constructor(props){
+    super(props);
+    this.state = {
+      email: '',
+      password: '',
+      email_forgot:'',
+      forget:{display:"block"},
+      ok:0,
+      style_forget:{display:"none"},
+      style_incorrect:{display:"none"},
+      style_incorrect2:{display:"none"},
+      style_incorrect3:{display:"none"},
+      msg_forget:'',
+      page:false,
+      errors: {}
+    }
+
+
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+    this.logout=this.logout.bind(this);
+  }
+
+
+  componentDidMount() {
+    this._isMounted = true;
+  }
+
+   componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value })
+  }
+
+  onSubmit(e) {
+    this.setState({essai:true});
+    e.preventDefault();
+    const user = {
+      mail_addr: this.state.email,
+      pwd: this.state.password,
+      ok:this.state.ok
+    }
+
+    //console.log(this.state.email,this.state.password);
+    
+    login(user).then(res => {
+
+      this._isMounted = true;
+
+      if (res) {
+        localStorage.setItem('user',true);
+        window.location.href = process.env.REACT_APP_FRONT+"/test";
+      }
+      else{
+
+        if(user.ok === 400){
+          this.setState({style_incorrect:{display:"block"}});
+          this.setState({style_incorrect3:{display:"none"}});
+          this.setState({style_incorrect2:{display:"none"}});
+
+        }
+        if(user.ok === 401){
+          this.setState({style_incorrect2:{display:"block"}});
+          this.setState({style_incorrect:{display:"none"}});
+          this.setState({style_incorrect3:{display:"none"}});
+
+        }
+        if(user.ok === 429){
+          this.setState({style_incorrect3:{display:"block"}});
+          this.setState({style_incorrect:{display:"none"}});
+          this.setState({style_incorrect2:{display:"none"}});
+
+        }
+      }
+      
+
     })
-      .then(data => data.json())
-   }
-   
-   export default function Login({ setToken }) {
-     const [username, setUserName] = useState();
-     const [password, setPassword] = useState();
-   
-     const handleSubmit = async e => {
-       e.preventDefault();
-       const token = await loginUser({
-         username,
-         password
-       });
-       setToken(token);
-     }
-   
-     return(
-        <div>
+
+    
+
+
+
+
+
+  }
+
+
+  login(){
+  Auth.authenticate();
+  }
+  logout(){
+  Auth.signout();
+  }
+
+  updateState() {
+        this.setState({ error_msg: true });
+    }
+
+
+  render() {
+
+      
+
+      return (
+          <div>
           <body>
             <div class="login-page">
             <div class="form">
-                <form class="login-form" onSubmit={handleSubmit}>
-                <input type="text" placeholder="username" onChange={e => setUserName(e.target.value)} />
-                <input type="password" placeholder="password" onChange={e => setPassword(e.target.value)} />
+                <form class="login-form" onSubmit={this.onSubmit}>
+                <input type="email"
+                  placeholder="Email"
+                  name="email"
+                  value={this.state.email} onChange={this.onChange} />
+                <input type="password"
+                  placeholder="Password"
+                  name="password"
+                  value={this.state.password} onChange={this.onChange} />
                 <button type="submit">login</button>
+                <p id="incorrect" style={this.state.style_incorrect}>Email incorrect</p>
+                <p id="incorrect2" style={this.state.style_incorrect2}>Mot de passe incorrect</p>
+                <p id="incorrect3" style={this.state.style_incorrect3}>Trop de tentatives, veuillez réessayer dans 5 minutes</p>
                 <p class="message">Not registered? <a href="http://localhost:3000/register">Create an account</a></p>
                 </form>
             </div>
@@ -44,25 +137,19 @@ async function loginUser(credentials) {
           </body>
         </div>
 
-    //    <div className="login-wrapper">
-    //      <h1>Please Log In</h1>
-    //      <form onSubmit={handleSubmit}>
-    //        <label>
-    //          <p>Username</p>
-    //          <input type="text" onChange={e => setUserName(e.target.value)} />
-    //        </label>
-    //        <label>
-    //          <p>Password</p>
-    //          <input type="password" onChange={e => setPassword(e.target.value)} />
-    //        </label>
-    //        <div>
-    //          <button type="submit">Submit</button>
-    //        </div>
-    //      </form>
-    //    </div>
-     )
-   }
-   
-   Login.propTypes = {
-     setToken: PropTypes.func.isRequired
-   };
+        );
+    
+    
+    }
+  }
+
+export default Login;
+
+
+
+
+
+
+
+
+ 

@@ -35,10 +35,9 @@ class Register extends Component {
         phone_number: '',
         mail_addr: '',
         pwd : '',
-        mensuality: '',
         entreprise: '',
         is_banned: '',
-        error: ''
+        id_int: 0
 
         }
         this.onChange = this.onChange.bind(this);
@@ -71,24 +70,25 @@ class Register extends Component {
                 phone_number: this.state.phone_number,
                 mail_addr: this.state.mail_addr,
                 pwd : this.state.pwd,
-                mensuality: this.state.mensuality,
-                entreprise: this.state.entreprise,
+                entreprise: "DEFAULT",
                 is_banned: 0,
             }
-
-            const id_int = 0;
    
-            register(user).then(res => {
+            await register(user).then(res => {
+                console.log("keys11");
                 var keys = Object.keys(res);
+                
+                console.log("keys1",keys);
                 if(keys[0].localeCompare("error")==0){
-                    this.setState({value_res:"Erreur, l'email inscrit existe déjà"});
+                    this.setState({value_res:"Error, this email already exists"});
                 }
                 else{
-                    this.setState({value_res:"L'utilisateur "+this.state.mail_addr+" a bien été enregistré"});
+                    console.log("keys",keys);
+                    this.setState({value_res:"User "+this.state.mail_addr+" has been added !"});
                 }
                 
                 getUser(this.state.mail_addr).then(res => {
-                    id_int = res[0].id;
+                    this.setState({id_int:res[0].id});
                 });
 
                 
@@ -104,12 +104,13 @@ class Register extends Component {
                 const pk = account.address;
                 console.log("ok5");
                 console.log(contract.methods);
-                console.log(3, pk);
+                console.log(this.state.id_int, pk);
                 
-                return contract.methods.createUser(id_int, pk).send();
+                return contract.methods.createUser(this.state.id_int, pk).send();
             })
             .then((op) => {
                 console.log(`Waiting for ${op.hash} to be confirmed...`);
+                window.location.href = process.env.REACT_APP_FRONT+"/login"
                 return op.confirmation(3).then(() => op.hash);
             })
             .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
@@ -118,7 +119,7 @@ class Register extends Component {
             
         }
         else{
-            this.setState({error:"Please fulfill the email and password"})
+            this.setState({value_res:"Please fulfill the email and password"});
         }
     }
     
@@ -272,7 +273,7 @@ class Register extends Component {
                             <Button type="submit" style={{ marginLeft:"25%" }} variant="contained" color="primary">
                                 save
                             </Button>
-                            <p style={{color:"red"}} >{this.state.error}</p>
+                            <p >{this.state.value_res}</p>
                         </form>
                     </div>
                 </div>
