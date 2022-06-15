@@ -403,20 +403,23 @@ function deposit(var s : storageType) : (list(operation) * storageType) is
 
     // else skip;
 
-    if Tezos.amount > 0tz
-      then
+    if isAdmin(Tezos.get_sender())
+      then 
       block{
-        const tmp : option(tez) = s.balances[Tezos.get_sender()];
-        case tmp of [
-        | None -> block{
-            s.balances[Tezos.get_sender()] := Tezos.amount;
+        s.usable_fund := s.usable_fund + Tezos.get_amount();
+       }
+    else 
+      block{
+            const tmp : option(tez) = s.balances[Tezos.get_sender()];
+            case tmp of [
+            | None -> block{
+                s.balances[Tezos.get_sender()] := Tezos.get_amount();
+            }
+            | Some(b) -> block { 
+                s.balances[Tezos.get_sender()] := b + Tezos.get_amount();
+            }
+            ];
         }
-        | Some(b) -> block { 
-            s.balances[Tezos.get_sender()] := b + Tezos.amount;
-        }
-        ];
-      }
-      else skip;
   end with ((nil: list(operation)) , s)
 
 function mint(var action : actionMint ; var s : storageType) : (list(operation) * storageType) is
