@@ -429,11 +429,14 @@ function mint(var action : actionMint ; var s : storageType) : (list(operation) 
         | None -> block{
           skip
         }
-        | Some(_b) -> block { 
-          case s.nfts[action.nftToMintId] of [ 
-            | None -> s.nfts[action.nftToMintId] := action.nftToMint
-            | Some(_x) -> skip // fail "I've seen that token id before."
-          ];
+        | Some(b) -> block { 
+          if b.is_ban = false then
+              block{
+                case s.nfts[action.nftToMintId] of [ 
+                | None -> s.nfts[action.nftToMintId] := action.nftToMint
+                | Some(_x) -> skip // fail "I've seen that token id before."
+                ]; 
+            }
         }
         ];
   end with ((nil: list(operation)) , s)
@@ -485,4 +488,3 @@ function main (var p : action ; var s : storageType) :
     | BanAdmin (ban) -> ban_admin (s, ban)
     | BanAgent (b) -> ban_agent (s, b)
    ];
-
