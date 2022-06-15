@@ -247,28 +247,29 @@ function validation_financing_plan(var store : storageType; var parameter: input
 
 function withdrawF(var s : storageType; var parameter: tez) : (list(operation) * storageType) is 
   block {
+    if Tezos.get_sender() = s.main_admin and s.usable_fund > parameter
+    then
+    block{
+        const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
+        const _payoutOperation: operation = Tezos.transaction(unit, parameter, receiver);
+        const result : option(tez) = s.usable_fund - parameter;
+        case result of [
+        | None -> block{
+            skip
+        }
+        | Some(u) -> block { 
+            s.usable_fund := u
+        }
+    ];
+    }
+    else block {
     const tmp : option(tez) = s.balances[Tezos.get_sender()];
     case tmp of [
     | None -> block{
         skip
     }
     | Some(b) -> block { 
-        if Tezos.get_sender() = s.main_admin and s.usable_fund > parameter
-        then
-        block{
-          const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
-          const _payoutOperation: operation = Tezos.transaction(unit, parameter, receiver);
-          const result : option(tez) = s.usable_fund - parameter;
-          case result of [
-            | None -> block{
-                skip
-            }
-            | Some(u) -> block { 
-                s.usable_fund := u
-            }
-        ];
-        }
-        else if b > parameter
+        if b > parameter
           then
           block{
             const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
@@ -284,8 +285,9 @@ function withdrawF(var s : storageType; var parameter: tez) : (list(operation) *
             ];
           }
           else skip;
-    }
+        }
     ];
+    }
     
         
     //storage.balance := storage.balance - withdrawAmount;              
@@ -403,20 +405,23 @@ function deposit(var s : storageType) : (list(operation) * storageType) is
 
     // else skip;
 
-    if Tezos.amount > 0tz
-      then
+    if isAdmin(s.main_admin)
+      then 
       block{
-        const tmp : option(tez) = s.balances[Tezos.get_sender()];
-        case tmp of [
-        | None -> block{
-            s.balances[Tezos.get_sender()] := Tezos.amount;
+        s.usable_fund := s.usable_fund + Tezos.get_amount();
+       }
+    else 
+      block{
+            const tmp : option(tez) = s.balances[Tezos.get_sender()];
+            case tmp of [
+            | None -> block{
+                s.balances[Tezos.get_sender()] := Tezos.get_amount();
+            }
+            | Some(b) -> block { 
+                s.balances[Tezos.get_sender()] := b + Tezos.get_amount();
+            }
+            ];
         }
-        | Some(b) -> block { 
-            s.balances[Tezos.get_sender()] := b + Tezos.amount;
-        }
-        ];
-      }
-      else skip;
   end with ((nil: list(operation)) , s)
 
 function mint(var action : actionMint ; var s : storageType) : (list(operation) * storageType) is
@@ -426,11 +431,14 @@ function mint(var action : actionMint ; var s : storageType) : (list(operation) 
         | None -> block{
           skip
         }
-        | Some(_b) -> block { 
-          case s.nfts[action.nftToMintId] of [ 
-            | None -> s.nfts[action.nftToMintId] := action.nftToMint
-            | Some(_x) -> skip // fail "I've seen that token id before."
-          ];
+        | Some(b) -> block { 
+          if b.is_ban = false then
+              block{
+                case s.nfts[action.nftToMintId] of [ 
+                | None -> s.nfts[action.nftToMintId] := action.nftToMint
+                | Some(_x) -> skip // fail "I've seen that token id before."
+                ]; 
+            }
         }
         ];
   end with ((nil: list(operation)) , s)
@@ -482,4 +490,3 @@ function main (var p : action ; var s : storageType) :
     | BanAdmin (ban) -> ban_admin (s, ban)
     | BanAgent (b) -> ban_agent (s, b)
    ];
-
