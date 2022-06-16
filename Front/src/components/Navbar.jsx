@@ -12,7 +12,7 @@ import config from "../config";
 
 export default function Navbar() {
   const [wallet, setWallet] = useState(null);
-  const [balances, setBalances] = useState(null);
+  const [balances, setBalances] = useState(0);
 
   const rpcURL = "https://ithacanet.ecadinfra.com";
 
@@ -39,7 +39,7 @@ export default function Navbar() {
             .then((myStorage) => {
               const balance = myStorage["balances"].get(account.address);
 
-              setBalances(balance.c[0]);
+              setBalances(balance.c[0]/1000000);
             })
             .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
         })
@@ -53,8 +53,7 @@ export default function Navbar() {
       <div className="flex-1 space-x-4">
       </div>
       <div>
-        💳{" "}
-            {balances}
+        💳{balances}
       </div>
       <div>
         <button

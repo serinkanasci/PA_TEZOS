@@ -176,9 +176,51 @@ export const updateUser = user => {
 	    })
 }
 
+export const banUser = user => {
+	return axios({
+          method: 'put',
+          url: process.env.REACT_APP_BACK+'/users/ban_user/'+user.mail_addr,
+          data: {
+            is_banned: user.is_banned
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+
+	    })
+}
+
 
 // Entreprises
 
+
+export const banEtps = user => {
+	return axios({
+          method: 'put',
+          url: process.env.REACT_APP_BACK+'/users/ban_etps/'+user.entreprise,
+          data: {
+            is_banned: user.is_banned
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+
+	    })
+}
 
 
 export const getEtps = () => {

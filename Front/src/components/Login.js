@@ -59,7 +59,7 @@ class Login extends Component {
 
       if (res) {
         localStorage.setItem('user',true);
-        window.location.href = process.env.REACT_APP_FRONT+"/test";
+        window.location.href = process.env.REACT_APP_FRONT+"/funding";
       }
       else{
 

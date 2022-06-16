@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import config from "../config";
+import { banUser, banEtps } from '../api/functions';
 import { deposit, withdraw, banAdmin, banAgent } from "../utils/wallet";
 const preferredNetwork = "ithacanet";
 const options = {
@@ -23,11 +24,58 @@ class LoginAdmin extends Component {
             withdraw:0,
             pk:"",
             ban_pk_admin:"",
-            ban_pk_agent:""
+            ban_pk_agent:"",
+            mail_agent:"",
+            mail_user:"",
+            entreprise:""
         }
         this.onChange = this.onChange.bind(this);
-       // this.onSubmit = this.onSubmit.bind(this);
+        this.onBanAgent = this.onBanAgent.bind(this);
+        this.onBanUser = this.onBanUser.bind(this);
+        this.onBanEtps = this.onBanEtps.bind(this);
     }
+
+
+    onBanAgent = event => { 
+        event.preventDefault(); 
+
+        if(this.state.mail_agent.localeCompare("")!==0 && this.state.ban_pk_agent.localeCompare("")!==0){
+            banAgent(this.state.ban_pk_agent);
+
+            const user = {
+                mail_addr: this.state.mail_agent,
+                is_banned: 1,
+            }
+
+            banUser(user).then(res => {
+            });
+
+        }
+    }; 
+
+    onBanUser = event => { 
+        event.preventDefault(); 
+
+        const user = {
+            mail_addr: this.state.mail_user,
+            is_banned: 1,
+        }
+
+        banUser(user).then(res => {
+        });
+    }; 
+
+    onBanEtps = event => { 
+        event.preventDefault(); 
+
+        const user = {
+            entreprise: this.state.entreprise,
+            is_banned: 1,
+        }
+
+        banEtps(user).then(res => {
+        });
+    }; 
 
 
     checkIfWalletConnected = async (wallet) => {
@@ -56,7 +104,7 @@ class LoginAdmin extends Component {
               const admins = myStorage["mapping_admin"].get(account.address);
               console.log(admins);
               if (admins !== false){
-                    window.location.href = process.env.REACT_APP_FRONT+"/login"
+                    //window.location.href = process.env.REACT_APP_FRONT+"/login"
               }
               this.setState({page:true});
             })
@@ -86,7 +134,7 @@ class LoginAdmin extends Component {
 
      
     render() {
-        if (this.state.page){
+        if (/*this.state.page*/true){
             return (
                 <div className="flex">
                     <div id="block1">
@@ -147,12 +195,40 @@ class LoginAdmin extends Component {
                             onChange={this.onChange}
                             value={this.state.ban_pk_agent}
                         />
+                        <input
+                            type="text"
+                            name="mail_agent"
+                            onChange={this.onChange}
+                            value={this.state.mail_agent}
+                        />
                         <button
-                           onClick={() => {
-                            banAgent(this.state.ban_pk_agent)
-                            }}
+                           onClick={(event) => this.onBanAgent(event)}
                         >
                             banAgent
+                        </button>
+                        <br/>
+                        <input
+                            type="text"
+                            name="mail_user"
+                            onChange={this.onChange}
+                            value={this.state.mail_user}
+                        />
+                        <button
+                           onClick={(event) => this.onBanUser(event)}
+                        >
+                            banUser
+                        </button>
+                        <br/>
+                        <input
+                            type="text"
+                            name="entreprise"
+                            onChange={this.onChange}
+                            value={this.state.entreprise}
+                        />
+                        <button
+                           onClick={(event) => this.onBanEtps(event)}
+                        >
+                            banEtps
                         </button>
                         </div>
                     </div>
