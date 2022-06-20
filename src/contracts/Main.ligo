@@ -179,25 +179,17 @@ function create_admin(var store : storageType; var public_key: address) : (list(
 
 function create_agent(var store : storageType; var parameter: input_agent_infos) : (list(operation) * storageType) is 
   block {
-        const admin : option(bool) = store.mapping_admin[Tezos.get_sender()];
-        case admin of [
-        | None -> block{
+        const public_key : address = parameter.public_key;
+        case store.mapping_agent[public_key] of [
+        | Some (_bool) -> block {
             skip
         }
-        | Some(_a) -> block { 
-          const public_key : address = parameter.public_key;
-          case store.mapping_agent[public_key] of [
-            | Some (_bool) -> block {
-              skip
-            }
-            | None -> block {
+        | None -> block {
             const agency : string = parameter.agency;
             const is_ban : bool = False;
             const new_record_agent: agent_infos = record [ agency = agency; is_ban = is_ban;];
             store.mapping_agent[public_key] := new_record_agent;
             skip
-            }
-          ];
         }
         ];      
   }
