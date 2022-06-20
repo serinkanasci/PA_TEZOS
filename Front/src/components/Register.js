@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { register, getUser } from '../api/functions';
+import { register, getUser, getEtpsId } from '../api/functions';
 import '../styles/navbar.css';
 import { TezosToolkit } from "@taquito/taquito";
 import {
@@ -35,7 +35,7 @@ class Register extends Component {
         phone_number: '',
         mail_addr: '',
         pwd : '',
-        entreprise: '',
+        entreprise: 'DEFAULT',
         is_banned: '',
         id_int: 0
 
@@ -70,7 +70,7 @@ class Register extends Component {
                 phone_number: this.state.phone_number,
                 mail_addr: this.state.mail_addr,
                 pwd : this.state.pwd,
-                entreprise: "DEFAULT",
+                entreprise: this.state.entreprise,
                 is_banned: 0,
             }
    
@@ -96,25 +96,48 @@ class Register extends Component {
             
 
             const account = await wallet.client.getActiveAccount();
-            console.log(account.address);
 
-            await tezos.wallet
-            .at(config.contractAddress)
-            .then((contract) => {
-                const pk = account.address;
-                console.log("ok5");
-                console.log(contract.methods);
-                console.log(this.state.id_int, pk);
-                
-                return contract.methods.createUser(this.state.id_int, pk).send();
-            })
-            .then((op) => {
-                console.log(`Waiting for ${op.hash} to be confirmed...`);
-                window.location.href = process.env.REACT_APP_FRONT+"/login"
-                return op.confirmation(3).then(() => op.hash);
-            })
-            .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
-            .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+            var result;
+
+            await getEtpsId(this.state.entreprise).then(res=>{
+                result = res;
+            });
+
+            if(result.length===1){
+                await tezos.wallet
+                .at(config.contractAddress)
+                .then((contract) => {
+                    const pk = account.address;
+                    
+                    return contract.methods.createAgent(result[0].entreprise, pk).send();
+                })
+                .then((op) => {
+                    console.log(`Waiting for ${op.hash} to be confirmed...`);
+                    window.location.href = process.env.REACT_APP_FRONT+"/login"
+                    return op.confirmation(3).then(() => op.hash);
+                })
+                .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+                .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+            }
+            else{
+                await tezos.wallet
+                .at(config.contractAddress)
+                .then((contract) => {
+                    const pk = account.address;
+                    console.log("ok5");
+                    console.log(contract.methods);
+                    console.log(this.state.id_int, pk);
+                    
+                    return contract.methods.createUser(this.state.id_int, pk).send();
+                })
+                .then((op) => {
+                    console.log(`Waiting for ${op.hash} to be confirmed...`);
+                    window.location.href = process.env.REACT_APP_FRONT+"/login"
+                    return op.confirmation(3).then(() => op.hash);
+                })
+                .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+                .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+            }
             
             
         }

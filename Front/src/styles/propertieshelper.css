@@ -5,6 +5,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width:20%;
+    display: inline-block;
+    zoom: 1;
 }
 
 .group{
@@ -14,16 +17,16 @@
 
 .image {
     margin: 9% 2% 2% 2%;
-    max-width: 83%;
+    max-width: 300px;
     cursor: pointer;
 }
 
 .info{
     margin: 2% 2% 2% 2%;
     background-color: rgb(30, 117, 184);
-    display: flex;
     color: white;
     cursor: pointer;
+    text-align: center !important;
 }
 
 .btn {

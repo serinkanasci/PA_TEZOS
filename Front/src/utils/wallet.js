@@ -196,6 +196,34 @@ export const banAgent = async (pk) => {
   }
 };
 
+export const mint = async (nft_id, address_uri) => {
+  
+  const response = await checkIfWalletConnected(wallet);
+  console.log(address_uri)
+  console.log(nft_id)
+  if (response.success) {
+    const tezos = new TezosToolkit(rpcURL);
+    tezos.setWalletProvider(wallet);
+    const account = await wallet.client.getActiveAccount();
+    console.log(account.address);
+    //const nftToMint = (address_uri, account.address)
+    const test = [];
+    test.push(address_uri);
+    test.push(account.address);
+    await tezos.wallet
+    .at(config.contractAddress)
+    .then((contract) => {
+        return contract.methods.mint(address_uri, account.address, nft_id ).send();
+    })
+    .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        return op.confirmation(3).then(() => op.hash);
+    })
+    .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+    .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+    
+  }
+};
 export {
   connectWallet,
   disconnectWallet,

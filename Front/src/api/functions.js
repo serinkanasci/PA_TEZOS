@@ -239,10 +239,10 @@ export const getEtps = () => {
 	    })
 }
 
-export const getEtp = etps => {
+export const getEtpsId = etps => {
 	return axios({
          method: 'get',
-         url:process.env.REACT_APP_BACK+'/users/etp/'+etps.id,
+         url:process.env.REACT_APP_BACK+'/users/etps/'+etps,
          auth: {
             username: process.env.REACT_APP_ID,
 	    	password: process.env.REACT_APP_MDP
@@ -255,10 +255,26 @@ export const getEtp = etps => {
 	    })
 }
 
-export const createEtp = etps => {
+export const getEtpsName = etps => {
+	return axios({
+         method: 'get',
+         url:process.env.REACT_APP_BACK+'/users/etpsByName/'+etps,
+         auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          }})
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	    })
+}
+
+export const createEtps = etps => {
 	return axios({
           method: 'post',
-          url: process.env.REACT_APP_BACK+'/users/createEtp',
+          url: process.env.REACT_APP_BACK+'/users/createEtps',
           data: {
             access_code: etps.access_code,
             entreprise: etps.entreprise,
@@ -450,5 +466,28 @@ export const getNFTs = () => {
 	    })
 	    .catch(err => {
 	      	console.log(err);
+	    })
+}
+
+export const createNFT = nft => {
+	return axios({
+          method: 'post',
+          url: process.env.REACT_APP_BACK+'/users/create_nft',
+          data: {
+            nftUri: nft.nftUri,
+            creator_etps: nft.creator_etps,
+            price: nft.price
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	    password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+
 	    })
 }

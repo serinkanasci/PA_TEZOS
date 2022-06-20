@@ -7,10 +7,10 @@ class Funding extends Component {
 
   render() {
 
-/*     if (jwt_decode(localStorage.getItem('usertoken')).exp < Date.now() / 1000) {
+     if (jwt_decode(localStorage.getItem('usertoken')).exp < Date.now() / 1000) {
       localStorage.setItem('user',false);
       window.location.href=process.env.REACT_APP_BACK+"/login";
-    } */
+    } 
 
     return (
       <div className="bg-black min-h-screen">

@@ -15,6 +15,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import LoginAdmin from './components/LoginAdmin';
 import PrivateRoute from './PrivateRoute';
+import Agent from './components/Agent';
 // import CreateAccount from './components/CreateAccount';
 import Funding from './Funding';
 
@@ -35,12 +36,9 @@ function App() {
           <Route exact path="/home">
             <Home />
           </Route>
-          {/* <PrivateRoute exact path="/funding" component={Funding} authed={localStorage.getItem('user')} /> */}
+          <PrivateRoute exact path="/funding" component={Funding} authed={localStorage.getItem('user')} />
           <Route exact path="/about">
             <About />
-          </Route>
-          <Route exact path="/funding">
-            <Funding />
           </Route>
           <Route exact path="/agents">
             <Agents />

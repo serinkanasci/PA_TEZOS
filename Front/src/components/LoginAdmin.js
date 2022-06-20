@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import config from "../config";
-import { banUser, banEtps } from '../api/functions';
+import { banUser, banEtps, createEtps } from '../api/functions';
 import { deposit, withdraw, banAdmin, banAgent } from "../utils/wallet";
 const preferredNetwork = "ithacanet";
 const options = {
@@ -27,7 +27,9 @@ class LoginAdmin extends Component {
             ban_pk_agent:"",
             mail_agent:"",
             mail_user:"",
-            entreprise:""
+            entreprise:"",
+            entrepriseC:"",
+            entrepriseCode:""
         }
         this.onChange = this.onChange.bind(this);
         this.onBanAgent = this.onBanAgent.bind(this);
@@ -74,6 +76,19 @@ class LoginAdmin extends Component {
         }
 
         banEtps(user).then(res => {
+        });
+    }; 
+
+    onCreateEtps = event => { 
+        event.preventDefault(); 
+        console.log(Math.random() * (99999 - 10000) + 10000);
+        const etps = {
+            entreprise: this.state.entrepriseC,
+            access_code: Math.random() * (99999 - 10000) + 10000,
+            is_banned: false
+        }
+
+        createEtps(etps).then(res => {
         });
     }; 
 
@@ -229,6 +244,18 @@ class LoginAdmin extends Component {
                            onClick={(event) => this.onBanEtps(event)}
                         >
                             banEtps
+                        </button>
+                        <br/>
+                        <input
+                            type="text"
+                            name="entrepriseC"
+                            onChange={this.onChange}
+                            value={this.state.entrepriseC}
+                        />
+                        <button
+                           onClick={(event) => this.onCreateEtps(event)}
+                        >
+                            createEtps
                         </button>
                         </div>
                     </div>

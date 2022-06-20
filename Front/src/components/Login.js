@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { login, profile } from '../api/functions';
+import { login, getEtpsId, getUser, getNFTs } from '../api/functions';
 import '../styles/login.css';
 import Auth from '../auth/Auth';
+import Agent from './Agent';
 
 class Login extends Component {
   _isMounted = false;
@@ -20,7 +21,9 @@ class Login extends Component {
       style_incorrect3:{display:"none"},
       msg_forget:'',
       page:false,
-      errors: {}
+      errors: {},
+      test:true,
+      nft:[]
     }
 
 
@@ -52,14 +55,31 @@ class Login extends Component {
     }
 
     //console.log(this.state.email,this.state.password);
+
+    
     
     login(user).then(res => {
 
       this._isMounted = true;
-
       if (res) {
-        localStorage.setItem('user',true);
-        window.location.href = process.env.REACT_APP_FRONT+"/funding";
+        getUser(this.state.email).then(resUser =>{
+          localStorage.setItem('user',true);
+          console.log("user",resUser);
+          getEtpsId(resUser[0].entreprise).then(res=>{
+            console.log("etps",res.length);
+            if(res.length===1){
+              getNFTs().then(res =>{
+                this.setState({nft:res, test:false});
+            });
+              //window.location.href = process.env.REACT_APP_FRONT+"/agent";
+            }
+            else{
+              window.location.href = process.env.REACT_APP_FRONT+"/funding";
+          }
+      });
+        })
+        
+        
       }
       else{
 
@@ -109,35 +129,45 @@ class Login extends Component {
 
   render() {
 
+    if(this.state.test){
+      return (
+        <div>
+        <div>
+          <div class="login-page">
+          <div class="form">
+              <form class="login-form" onSubmit={this.onSubmit}>
+              <input type="email"
+                placeholder="Email"
+                name="email"
+                value={this.state.email} onChange={this.onChange} />
+              <input type="password"
+                placeholder="Password"
+                name="password"
+                value={this.state.password} onChange={this.onChange} />
+              <button type="submit">login</button>
+              <p id="incorrect" style={this.state.style_incorrect}>Email incorrect</p>
+              <p id="incorrect2" style={this.state.style_incorrect2}>Mot de passe incorrect</p>
+              <p id="incorrect3" style={this.state.style_incorrect3}>Trop de tentatives, veuillez réessayer dans 5 minutes</p>
+              <p class="message">Not registered? <a href="http://localhost:3000/register">Create an account</a></p>
+              </form>
+          </div>
+          </div>
+          <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script><script src="./script.js"></script>
+        </div>
+      </div>
+
+      );
+    }
+    else{
+      return (
+        <Agent nft={this.state.nft}/>
+
+      );
+    }
+
       
 
-      return (
-          <div>
-          <body>
-            <div class="login-page">
-            <div class="form">
-                <form class="login-form" onSubmit={this.onSubmit}>
-                <input type="email"
-                  placeholder="Email"
-                  name="email"
-                  value={this.state.email} onChange={this.onChange} />
-                <input type="password"
-                  placeholder="Password"
-                  name="password"
-                  value={this.state.password} onChange={this.onChange} />
-                <button type="submit">login</button>
-                <p id="incorrect" style={this.state.style_incorrect}>Email incorrect</p>
-                <p id="incorrect2" style={this.state.style_incorrect2}>Mot de passe incorrect</p>
-                <p id="incorrect3" style={this.state.style_incorrect3}>Trop de tentatives, veuillez réessayer dans 5 minutes</p>
-                <p class="message">Not registered? <a href="http://localhost:3000/register">Create an account</a></p>
-                </form>
-            </div>
-            </div>
-            <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script><script src="./script.js"></script>
-          </body>
-        </div>
-
-        );
+      
     
     
     }
