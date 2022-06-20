@@ -9,8 +9,8 @@ module.exports = db.sequelize.define(
       primaryKey: true,
       autoIncrement: true
     },
-    nftId: {
-      type: Sequelize.INTEGER
+    nftUri: {
+      type: Sequelize.STRING
     },
     creator_etps: {
       type: Sequelize.STRING
