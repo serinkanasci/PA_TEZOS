@@ -33,16 +33,16 @@ export default function Navbar() {
 
         const tezos = new TezosToolkit(rpcURL);
         tezos.setWalletProvider(wallet);
-        tezos.contract.at(config.contractAddress).then((myContract) => {
-          return myContract
-            .storage()
-            .then((myStorage) => {
-              const balance = myStorage["balances"].get(account.address);
+        // tezos.contract.at(config.contractAddress).then((myContract) => {
+        //   return myContract
+        //     .storage()
+        //     .then((myStorage) => {
+        //       const balance = myStorage["balances"].get(account.address);
 
-              setBalances(balance.c[0]/1000000);
-            })
-            .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
-        })
+        //       setBalances(balance.c[0]/1000000);
+        //     })
+        //     .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+        // })
       }
     };
     func();

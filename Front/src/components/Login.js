@@ -22,7 +22,7 @@ class Login extends Component {
       msg_forget:'',
       page:false,
       errors: {},
-      test:true,
+      test:false,//
       nft:[]
     }
 

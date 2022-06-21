@@ -36,30 +36,48 @@ class Agent extends Component {
     this.renderNFTs = this.renderNFTs.bind(this);
   }
 
+  checkIfWalletConnected = async (wallet) => {
+    await wallet
+    .requestPermissions({ network: { type: 'ithacanet' } })
+    .then((_) => wallet.getPKH())
+    .then((address) => console.log(`Your address: ${address}`));
+    tezos.setWalletProvider(wallet);
+};
 
 
-  renderNFTs(){
-      console.log("nft",this.props.nft);
-      if(typeof this.props.nft !== "undefined"){
-        return this.props.nft.map((nft,index) => {
-            console.log("on rentre");
-            return(<div><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/></div>);
-            
-        });
-      }
 
-      return null;
-   
-      
-}
+      renderNFTs = async () => {
 
-    checkIfWalletConnected = async (wallet) => {
-        await wallet
-        .requestPermissions({ network: { type: 'ithacanet' } })
-        .then((_) => wallet.getPKH())
-        .then((address) => console.log(`Your address: ${address}`));
+        await this.checkIfWalletConnected(wallet)
+        const tezos = new TezosToolkit(rpcURL);
         tezos.setWalletProvider(wallet);
-    };
+        console.log(config.contractAddress);
+        tezos.contract.at(config.contractAddress).then((myContract) => {
+          return myContract
+            .storage()
+            .then((myStorage) => {
+              const nft = myStorage["nfts"].get('16');
+              console.log(nft.address_uri)
+            })
+          
+            .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`) );
+          })
+          console.log("nft",this.props.nft);
+          if(typeof this.props.nft !== "undefined"){
+            return this.props.nft.map((nft,index) => {
+                console.log(nft);
+                console.log("on rentre");
+                return(<div><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/></div>);
+                
+            });
+          }
+
+          return null;
+      
+          
+    }
+
+
 
     isAgent = async () => {
         await this.checkIfWalletConnected(wallet)
