@@ -491,3 +491,16 @@ export const createNFT = nft => {
 
 	    })
 }
+
+
+export const customGet = data => {
+	return axios({
+         method: 'get',
+         url:data})
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	    })
+}

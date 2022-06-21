@@ -4,12 +4,12 @@ import React, { Component } from 'react';
 import jwt_decode from 'jwt-decode';
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
-import { getEtpsName, getNFTs } from '../api/functions';
+import { getEtpsName, getNFTs, customGet } from '../api/functions';
 import config from "../config";
 import '../styles/properties.css';
 import '../styles/property.css';
 import PropertiesHelper from '../shared/PropertiesHelper';
-
+import Details from './Details';
 const preferredNetwork = "ithacanet";
 const options = {
 name: "NFT",
@@ -28,11 +28,16 @@ class Agent extends Component {
     this.state = {
       entreprise: '',
       nft:[],
-      valid:""
+      valid:"",
+      varTab:[],
+      detail:false,
+      nftclicked:1,
+      detailT:[]
     }
 
 
     this.isAgent = this.isAgent.bind(this);
+    this.handleClick = this.handleClick.bind(this);
     this.renderNFTs = this.renderNFTs.bind(this);
   }
 
@@ -45,29 +50,104 @@ class Agent extends Component {
 };
 
 
+handleClick(nft_id){
+  console.log("HANDLE CLICK");
+  console.log(nft_id)
+  //this.state.nftclicked = nft_id;
+  //this.state.detail = true;
+  this.setState({detail:true});
+  this.setState({nftclicked:nft_id});
+}
 
-      renderNFTs = async () => {
+ getNfts (nft){
+   console.log("getNfts");
+  tezos.contract.at(config.contractAddress).then((myContract) => {
+      return myContract
+        .storage()
+        .then((myStorage) => {
+          const nftT = myStorage["nfts"].get(''+nft.id+'');
+          console.log("NFT T ", nftT);
+          if(typeof nftT !== 'undefined'){
+            if(nftT.address_uri.startsWith("https")){
+              console.log("URI", nftT.address_uri);
 
-        await this.checkIfWalletConnected(wallet)
+              customGet(nftT.address_uri).then( res =>{
+                console.log("RES  ", res);
+                if (typeof res !== "undefined"){
+                  const imageT = res.image;
+                  const name = res.name;
+                  var tabTemp = this.state.varTab;
+                  tabTemp[nft.id -1] = [imageT, name];
+                  console.log("TAB TEMP: ", tabTemp);
+                  this.setState({varTab:tabTemp});
+                  this.setState({detailT:res});
+                 // return(<PropertiesHelper image="assets/home3.png" info="Housing 3"/>);
+                   // this.setState({entreprise:agent.agency}); <PropertiesHelper image={imageT} info={res.name}/>
+              }
+              else{
+                return null;
+              }
+            });
+            }
+            else{
+              return null;
+            }
+            
+          }
+        })
+      }     )
+ }
+
+      renderNFTs(){
+        console.log("render nfts");
+       // await this.checkIfWalletConnected(wallet);
         const tezos = new TezosToolkit(rpcURL);
         tezos.setWalletProvider(wallet);
         console.log(config.contractAddress);
-        tezos.contract.at(config.contractAddress).then((myContract) => {
-          return myContract
-            .storage()
-            .then((myStorage) => {
-              const nft = myStorage["nfts"].get('16');
-              console.log(nft.address_uri)
-            })
-          
-            .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`) );
-          })
-          console.log("nft",this.props.nft);
           if(typeof this.props.nft !== "undefined"){
             return this.props.nft.map((nft,index) => {
-                console.log(nft);
-                console.log("on rentre");
-                return(<div><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/><PropertiesHelper image="assets/home3.png" info={nft.creator_etps}/></div>);
+              console.log("RENDER NFTS", this.state.varTab[index]);
+              let imageT= this.state.varTab[index];
+              if(typeof imageT !== "undefined"){
+                return(<div className="card" onClick={() => this.handleClick(this.state.detailT)} ><PropertiesHelper image={imageT[0]} info={imageT[1]}  /></div>);
+              }
+              else{
+                return(<PropertiesHelper image={""} info={""}/>);
+              }
+              
+              
+                // console.log(nft.creator_etps);
+                // tezos.contract.at(config.contractAddress).then((myContract) => {
+                //   return myContract
+                //     .storage()
+                //     .then((myStorage) => {
+                //       const nftT = myStorage["nfts"].get(''+nft.id+'');
+                //       if(typeof nftT !== 'undefined'){
+                //         if(nftT.address_uri.startsWith("http")){
+                //           customGet(nftT.address_uri).then( res =>{
+                //             console.log(res)
+                //             if (typeof res !== "undefined"){
+                //             if(res.length === 1){
+                //               const imageT = res.image;
+                //               return(<PropertiesHelper image="assets/home3.png" info="Housing 3"/>);
+                //                // this.setState({entreprise:agent.agency}); <PropertiesHelper image={imageT} info={res.name}/>
+                //             }
+                //           }
+                //           else{
+                //             return null;
+                //           }
+                //         });
+                //         }
+                //         else{
+                //           return null;
+                //         }
+                        
+                //       }
+                //     })
+                  
+                //     //.catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`) );
+                //   })
+                
                 
             });
           }
@@ -125,6 +205,17 @@ class Agent extends Component {
             window.location.href=process.env.REACT_APP_FRONT+"/login";
           } 
         this.isAgent()
+        this.props.nft.forEach((nft,index) => {
+          console.log("constructor");
+          this.getNfts(nft);
+          var temp = this.state.varTab;
+          temp.push(('assets/home3.png',"DEFAULT"));
+
+          temp[temp.length-1] = ['assets/home3.png',"DEFAULT"];
+         // console.log("TEMP ",temp);
+
+          this.setState({ varTab: temp })
+        });
         
       }
     
@@ -134,24 +225,30 @@ class Agent extends Component {
 
   render() {
 
-    return (
-      <div className="bg-black min-h-screen">
-        <Navbar />
-        <div className="container pt-10 mx-auto">
-          <div className="flex justify-center">
-            <h1 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-blue-300 to-red-400">
-            
-            </h1>
+    if(this.state.detail){
+      return (
+      <Details var={this.state.nftclicked}/>);
+    }
+    else{
+      return (
+        <div className="bg-black min-h-screen">
+          <Navbar />
+          <div className="container pt-10 mx-auto">
+            <div className="flex justify-center">
+              <h1 onClick={(event) => this.handleClick(1)} className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-blue-300 to-red-400">
+              
+              </h1>
+            </div>
+            <div className="mt-20 flex justify-center">
+              <ManageNFT creator_etps={this.state.entreprise} />
+            </div>
+            <div className="all-cards">
+             {this.renderNFTs()}
           </div>
-          <div className="mt-20 flex justify-center">
-            <ManageNFT creator_etps={this.state.entreprise} />
           </div>
-          <div className="all-cards">
-           {this.renderNFTs()}
         </div>
-        </div>
-      </div>
-    );
+      );
+    }
     
     
     }

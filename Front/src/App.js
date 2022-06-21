@@ -15,7 +15,6 @@ import Login from './components/Login';
 import Register from './components/Register';
 import LoginAdmin from './components/LoginAdmin';
 import PrivateRoute from './PrivateRoute';
-import Agent from './components/Agent';
 // import CreateAccount from './components/CreateAccount';
 import Funding from './Funding';
 
