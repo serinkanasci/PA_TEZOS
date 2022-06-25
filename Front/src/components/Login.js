@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { login, getEtpsId, getUser, getNFTs } from '../api/functions';
+import { login, getEtpsId, getUser, getNFTs, getF } from '../api/functions';
+import Funding from "./Funding";
 import '../styles/login.css';
 import Auth from '../auth/Auth';
 import Agent from './Agent';
@@ -22,8 +23,10 @@ class Login extends Component {
       msg_forget:'',
       page:false,
       errors: {},
-      test:true,
-      nft:[]
+      test:0,
+      nft:[],
+      user:{},
+      finance:{}
     }
 
 
@@ -65,16 +68,22 @@ class Login extends Component {
         getUser(this.state.email).then(resUser =>{
           localStorage.setItem('user',true);
           console.log("user",resUser);
-          getEtpsId(resUser[0].entreprise).then(res=>{
-            console.log("etps",res.length);
-            if(res.length===1){
+          getEtpsId(resUser[0].entreprise).then(resEtps=>{
+            console.log("etps",resEtps.length);
+            if(resEtps.length===1){
               getNFTs().then(res =>{
-                this.setState({nft:res, test:false});
+                getF().then(resF =>{
+                  console.log("resF",resF);
+                  this.setState({user:resEtps, nft:res, test:1, finance:resF});
+              });
             });
               //window.location.href = process.env.REACT_APP_FRONT+"/agent";
             }
             else{
-              window.location.href = process.env.REACT_APP_FRONT+"/funding";
+              getNFTs().then(res =>{
+                this.setState({user:resUser, nft:res, test:2});
+            });
+              
           }
       });
         })
@@ -129,7 +138,7 @@ class Login extends Component {
 
   render() {
 
-    if(this.state.test){
+    if(this.state.test === 0){
       return (
         <div>
         <div>
@@ -158,11 +167,16 @@ class Login extends Component {
 
       );
     }
+    else if (this.state.test === 1){
+      return (
+        <Agent user={this.state.user} nft={this.state.nft} finance={this.state.finance}/>
+      );
+    }
     else{
       return (
-        <Agent nft={this.state.nft}/>
-
+        <Funding user={this.state.user} nft={this.state.nft}/>
       );
+
     }
 
       

@@ -15,9 +15,6 @@ module.exports = db.sequelize.define(
     rate_insurance: {
       type: Sequelize.FLOAT
     },
-    yearly_income: {
-      type: Sequelize.FLOAT
-    },
     contribution: {
       type: Sequelize.FLOAT
     },
@@ -30,8 +27,17 @@ module.exports = db.sequelize.define(
     user_risk: {
       type: Sequelize.FLOAT
     },
-    age: {
+    user_id: {
       type: Sequelize.INTEGER
+    },
+    nft_id: {
+      type: Sequelize.INTEGER
+    },
+    validate: {
+      type: Sequelize.BOOLEAN
+    },
+    etps: {
+      type: Sequelize.STRING
     }
   },
   {

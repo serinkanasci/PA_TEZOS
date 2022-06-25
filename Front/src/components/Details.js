@@ -8,6 +8,10 @@ import { getEtpsName, getNFTs, customGet } from '../api/functions';
 import config from "../config";
 import '../styles/properties.css';
 import '../styles/property.css';
+import {
+  TextField,
+  Button
+} from "@material-ui/core";
 import PropertiesHelper from '../shared/PropertiesHelper'
 const preferredNetwork = "ithacanet";
 const options = {
@@ -33,6 +37,10 @@ class Details extends Component {
       nftclicked:1,
       name:"DEFAULT",
       attr1:"DEFAULT",
+      attr2:"DEFAULT",
+      attr3:"DEFAULT",
+      attr4:"DEFAULT",
+      attr5:"DEFAULT",
       image:"assets/home3.png"
     }
 
@@ -61,7 +69,8 @@ handleClick(nft_id){
 }
 
  getDetails (nft){
-   console.log("getNfts");
+   console.log("details getNfts");
+   console.log(this.props.nft_id)
   tezos.contract.at(config.contractAddress).then((myContract) => {
       return myContract
         .storage()
@@ -201,9 +210,15 @@ handleClick(nft_id){
             localStorage.setItem('user',false);
             window.location.href=process.env.REACT_APP_FRONT+"/login";
           } 
+          console.log("test");
+          console.log(this.props.var);
           console.log("details1",this.props.var.attributes[0]["trait_type"]+" "+this.props.var.attributes[0]["value"]);
           var txt = this.props.var.attributes[0]["trait_type"]+" : "+this.props.var.attributes[0]["value"];
-         this.setState({name:this.props.var.name, image:this.props.var.image, attr1:txt});
+          var txt2 = this.props.var.attributes[1]["trait_type"]+" : "+this.props.var.attributes[1]["value"];
+          var txt3 = this.props.var.attributes[2]["trait_type"]+" : "+this.props.var.attributes[2]["value"];
+          var txt4 = this.props.var.attributes[3]["trait_type"]+" : "+this.props.var.attributes[3]["value"];
+          var txt5 = this.props.var.attributes[4]["trait_type"]+" : "+this.props.var.attributes[4]["value"];
+         this.setState({name:this.props.var.name, image:this.props.var.image, attr1:txt, attr2:txt2, attr3:txt3, attr4:txt4, attr5:txt5});
         
       }
     
@@ -215,9 +230,16 @@ handleClick(nft_id){
       return (
         <div className="bg-black min-h-screen">
            <div>
+           <Button onClick={() => this.props.handler()} style={{ marginLeft:"25%" }} variant="contained" color="primary">
+                                BACK
+                            </Button>
             <img className="image" src={this.state.image} alt=""/>    
             <h2 className="info">{this.state.name}</h2>
             <h2 className="info">{this.state.attr1}</h2>
+            <h2 className="info">{this.state.attr2}</h2>
+            <h2 className="info">{this.state.attr3}</h2>
+            <h2 className="info">{this.state.attr4}</h2>
+            <h2 className="info">{this.state.attr5}</h2>
          </div>
         </div>
       );

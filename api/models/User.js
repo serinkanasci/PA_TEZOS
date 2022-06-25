@@ -45,6 +45,12 @@ module.exports = db.sequelize.define(
     entreprise: {
       type: Sequelize.STRING
     },
+    yearly_income: {
+      type: Sequelize.FLOAT
+    },
+    verified: {
+      type: Sequelize.BOOLEAN
+    },
     is_banned: {
       type: Sequelize.BOOLEAN
     }

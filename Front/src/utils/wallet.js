@@ -1,6 +1,7 @@
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import config from "../config";
+import { createNFT } from '../api/functions';
 
 const preferredNetwork = "ithacanet";
 const options = {
@@ -196,7 +197,7 @@ export const banAgent = async (pk) => {
   }
 };
 
-export const mint = async (nft_id, address_uri) => {
+export const mint = async (nft_id, address_uri, nft) => {
   
   const response = await checkIfWalletConnected(wallet);
   console.log(address_uri)
@@ -217,7 +218,10 @@ export const mint = async (nft_id, address_uri) => {
     })
     .then((op) => {
         console.log(`Waiting for ${op.hash} to be confirmed...`);
+        createNFT(nft).then(res =>{
+        })
         return op.confirmation(3).then(() => op.hash);
+
     })
     .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
     .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));

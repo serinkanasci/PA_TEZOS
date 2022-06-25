@@ -16,7 +16,7 @@ import Register from './components/Register';
 import LoginAdmin from './components/LoginAdmin';
 import PrivateRoute from './PrivateRoute';
 // import CreateAccount from './components/CreateAccount';
-import Funding from './Funding';
+import Funding from './components/Funding';
 
 function App() {
   const [token, setToken] = useState();

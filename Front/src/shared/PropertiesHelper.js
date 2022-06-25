@@ -13,6 +13,7 @@ class PropertiesHelper  extends Component {
          <div>
             <img className="image" src={this.props.image} alt=""/>    
             <h2 className="info">{this.props.info}</h2>
+            <h2 className="info">{this.props.info2+" TEZ"}</h2>
          </div>
       );
     }

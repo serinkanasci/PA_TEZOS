@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS users(
     pwd VARCHAR(200) NOT NULL,
     entreprise VARCHAR(200),
     mensuality TIMESTAMP,
+    yearly_income FLOAT NOT NULL,
+    verified BOOLEAN NOT NULL,
     is_banned BOOLEAN NOT NULL
 );
 
@@ -32,12 +34,14 @@ CREATE TABLE IF NOT EXISTS financing_plan(
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     rate_interest FLOAT NOT NULL,
     rate_insurance FLOAT NOT NULL,
-    yearly_income FLOAT NOT NULL,
     contribution FLOAT NOT NULL,
     monthly_loan FLOAT NOT NULL,
     housing_price FLOAT NOT NULL,
     user_risk FLOAT NOT NULL,
-    age INT NOT NULL
+    user_id INT NOT NULL,
+    nft_id INT NOT NULL,
+    validate BOOLEAN NOT NULL,
+    etps VARCHAR(200) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS nft(

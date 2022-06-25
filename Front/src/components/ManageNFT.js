@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { mint } from "../utils/wallet";
-import { createNFT } from '../api/functions';
+import { getNFTs } from '../api/functions';
 
 export default function ManageNFT(props) {
   const [nftUri, setnftUri] = useState(""); 
@@ -15,11 +15,16 @@ export default function ManageNFT(props) {
                 creator_etps: props.creator_etps,
                 price: price
             }
-            console.log("nft",nft)
-            createNFT(nft).then(res =>{
-              console.log("id",res.nft.id);
-              mint(res.nft.id, nftUri);
+            getNFTs().then(res =>{
+              console.log("test mint",res.length );
+              try{
+                mint(res.length+1, nftUri, nft);
+              }
+              catch{
+                return null;
+              }
             })
+            // console.log("nft",nft)
             
         }
     }

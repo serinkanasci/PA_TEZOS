@@ -8,6 +8,43 @@ const User = require('../models/User')
 const FinancingPlan = require('../models/FinancingPlan')
 const Nft = require('../models/Nft')
 const Etps = require('../models/Etps')
+var fs = require('fs');
+
+var multer  = require('multer');
+
+var storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "D:/tempo/");
+    },
+    filename: (req, file, cb) => {
+      console.log(file);
+      var filetype = '';
+      if(file.mimetype === 'image/gif') {
+        filetype = 'gif';
+      }
+      if(file.mimetype === 'image/png') {
+        filetype = 'png';
+      }
+      if(file.mimetype === 'image/jpeg') {
+        filetype = 'jpg';
+      }
+      if(file.mimetype === 'application/json') {
+        filetype = 'json';
+      }
+      cb(null, file.originalname+'-'+ Date.now() + '.' + filetype);
+    }
+});
+var upload = multer({storage: storage});
+
+
+users.post('/upload',upload.single('file'),function(req, res, next) {
+  console.log(req.file);
+  if(!req.file) {
+    res.status(500);
+    return next(err);
+  }
+  res.json({ fileUrl: 'http://localhost:5000/tempo/' + req.file.filename });
+})
 
 
 
@@ -69,6 +106,8 @@ users.post('/register',basicAuth( { authorizer: myAuthorizer } ), (req, res) => 
     mensuality: req.body.mensuality,
     birth_date: req.body.birth_date,
     entreprise: req.body.entreprise,
+    yearly_income: req.body.yearly_income,
+    verified: req.body.verified,
     is_banned: req.body.is_banned
   }
 
@@ -163,6 +202,8 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
     entreprise: req.body.entreprise,
     mensuality: req.body.mensuality,
     birth_date: req.body.birth_date,
+    yearly_income: req.body.yearly_income,
+    verified: req.body.verified,
     is_banned: req.body.is_banned
   }
 
@@ -187,6 +228,8 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
             entreprise: req.body.entreprise,
             mensuality: req.body.mensuality,
             birth_date: req.body.birth_date,
+            yearly_income: req.body.yearly_income,
+            verified: req.body.verified,
             is_banned: req.body.is_banned
 
         });
@@ -203,6 +246,39 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
 
 
   })
+
+
+  users.put('/verify_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
+    var check = req.params.id;
+    const userData = {
+      verified: req.body.verified,
+    }
+  
+    User.findOne({
+      where: {
+        mail_addr: check
+      }
+    })
+      .then(user => {
+        if (user) {
+          bcrypt.hash(req.body.pwd, 10, (err, hash) => {
+            user.update({
+              verified: req.body.verified,
+  
+          });
+  
+          res.json(user);
+          })
+        } else {
+          res.send('User does not exist');
+        }
+      })
+      .catch(err => {
+        res.send('error: ' + err);
+      })
+  
+  
+    })
 
 
   users.put('/ban_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
@@ -422,38 +498,25 @@ users.put('/update_etps/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
   users.post('/create_financing_plan',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
   
     const financingPlanData = {
-      id: req.body.id,
       rate_interest: req.body.rate_interest,
       rate_insurance: req.body.rate_insurance,
-      yearly_income: req.body.yearly_income,
       contribution: req.body.contribution,
       monthly_loan: req.body.monthly_loan,
       housing_price: req.body.housing_price,
       user_risk: req.body.user_risk,
-      age: req.body.age
+      user_id: req.body.user_id,
+      nft_id: req.body.nft_id,
+      validate: req.body.validate,
+      etps: req.body.etps
     }
 
-    FinancingPlan.findOne({
-      where: {
-        id: req.body.id
-      }
-    })
-      .then(financing_plan => {
-        if (!financing_plan) {
-          FinancingPlan.create(financingPlanData)
+    FinancingPlan.create(financingPlanData)
             .then(financing_plan => {
-              res.json({ status: financing_plan.id + ' Registered!' })
+              res.json({ status: financing_plan })
             })
             .catch(err => {
               res.send('error: ' + err)
             })
-        } else {
-          res.json({ error: 'Financing Plan already exists' })
-        }
-      })
-      .catch(err => {
-        res.send('error: ' + err)
-      })
   })
   
   
@@ -510,12 +573,14 @@ users.put('/update_etps/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
     const financingPlanData = {
       rate_interest: req.body.rate_interest,
       rate_insurance: req.body.rate_insurance,
-      yearly_income: req.body.yearly_income,
       contribution: req.body.contribution,
       monthly_loan: req.body.monthly_loan,
       housing_price: req.body.housing_price,
       user_risk: req.body.user_risk,
-      age: req.body.age
+      user_id: req.body.user_id,
+      nft_id: req.body.nft_id,
+      validate: req.body.validate,
+      etps: req.body.etps
     }
   
     FinancingPlan.findOne({
@@ -524,16 +589,18 @@ users.put('/update_etps/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
       }
     })
       .then(financing_plan => {
-        if (user) {
+        if (financing_plan) {
           financing_plan.update({
             rate_interest: req.body.rate_interest,
             rate_insurance: req.body.rate_insurance,
-            yearly_income: req.body.yearly_income,
             contribution: req.body.contribution,
             monthly_loan: req.body.monthly_loan,
             housing_price: req.body.housing_price,
             user_risk: req.body.user_risk,
-            age: req.body.age
+            user_id: req.body.user_id,
+            nft_id: req.body.nft_id,
+            validate: req.body.validate,
+            etps: req.body.etps
           });
           res.json(financing_plan);
         } else {
@@ -546,6 +613,36 @@ users.put('/update_etps/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
   
   
     })
+
+
+    users.put('/validate_financing_plan/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
+      var check = req.params.id;
+      console.log(req.body.validate);
+      const financingPlanData = {
+        validate: req.body.validate,
+      }
+    
+      FinancingPlan.findOne({
+        where: {
+          id: check
+        }
+      })
+        .then(financing_plan => {
+          if (financing_plan) {
+            financing_plan.update({
+              validate: req.body.validate,
+            });
+            res.json(financing_plan);
+          } else {
+            res.send('Financing Plan does not exist');
+          }
+        })
+        .catch(err => {
+          res.send('error: ' + err);
+        })
+    
+    
+      })
 
 
 

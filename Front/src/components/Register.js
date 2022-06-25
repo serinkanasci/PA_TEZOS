@@ -30,6 +30,8 @@ class Register extends Component {
         birth_date: '',
         post_addr: '',
         country: '',
+        yearly: 0,
+        verif: 0,
         city: '',
         street_addr: '',
         phone_number: '',
@@ -71,6 +73,8 @@ class Register extends Component {
                 mail_addr: this.state.mail_addr,
                 pwd : this.state.pwd,
                 entreprise: this.state.entreprise,
+                yearly_income: this.state.yearly,
+                verified: this.state.verif,
                 is_banned: 0,
             }
    
@@ -261,6 +265,16 @@ class Register extends Component {
                             name="phone_number"
                             label="Phone number"
                             value={this.state.phone_number}
+                            onChange={this.onChange}
+                            />
+                            <br />
+                            <TextField
+                            style={{ width: "200px", margin: "5px" }}
+                            type="text"
+                            variant="outlined"
+                            name="yearly"
+                            label="Yearly income"
+                            value={this.state.yearly}
                             onChange={this.onChange}
                             />
                             <br />
