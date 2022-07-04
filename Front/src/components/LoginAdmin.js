@@ -4,14 +4,14 @@ import { BeaconWallet } from "@taquito/beacon-wallet";
 import config from "../config";
 import { banUser, banEtps, createEtps, verify } from '../api/functions';
 import { deposit, withdraw, banAdmin, banAgent } from "../utils/wallet";
-const preferredNetwork = "ithacanet";
+const preferredNetwork = "jakartanet";
 const options = {
     name: "NFT",
     iconUrl: "https://tezostaquito.io/img/favicon.png",
     preferredNetwork: preferredNetwork,
 };
 const wallet = new BeaconWallet(options);
-const rpcURL = "https://ithacanet.ecadinfra.com";
+const rpcURL = "https://jakartanet.ecadinfra.com";
 const tezos = new TezosToolkit(rpcURL);
 const bcrypt = require('bcryptjs');
 
@@ -109,7 +109,7 @@ class LoginAdmin extends Component {
 
     checkIfWalletConnected = async (wallet) => {
         await wallet
-            .requestPermissions({ network: { type: 'ithacanet' } })
+            .requestPermissions({ network: { type: 'jakartanet' } })
             .then((_) => wallet.getPKH())
             .then((address) => console.log(`Your address: ${address}`));
         tezos.setWalletProvider(wallet);

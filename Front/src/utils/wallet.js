@@ -3,13 +3,13 @@ import { BeaconWallet } from "@taquito/beacon-wallet";
 import config from "../config";
 import { createNFT } from '../api/functions';
 
-const preferredNetwork = "ithacanet";
+const preferredNetwork = "jakartanet";
 const options = {
   name: "NFT",
   iconUrl: "https://tezostaquito.io/img/favicon.png",
   preferredNetwork: preferredNetwork,
 };
-const rpcURL = "https://ithacanet.ecadinfra.com";
+const rpcURL = "https://jakartanet.ecadinfra.com";
 const wallet = new BeaconWallet(options);
 
 const getActiveAccount = async () => {

@@ -14,7 +14,7 @@ export default function Navbar() {
   const [wallet, setWallet] = useState(null);
   const [balances, setBalances] = useState(0);
 
-  const rpcURL = "https://ithacanet.ecadinfra.com";
+  const rpcURL = "https://jakartanet.ecadinfra.com";
 
   const handleConnectWallet = async () => {
     const { wallet } = await connectWallet();

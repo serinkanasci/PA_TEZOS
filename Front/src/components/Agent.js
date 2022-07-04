@@ -11,14 +11,14 @@ import '../styles/property.css';
 import PropertiesHelper from '../shared/PropertiesHelper';
 import Details from './Details';
 
-const preferredNetwork = "ithacanet";
+const preferredNetwork = "jakartanet";
 const options = {
   name: "NFT",
   iconUrl: "https://tezostaquito.io/img/favicon.png",
   preferredNetwork: preferredNetwork,
 };
 const wallet = new BeaconWallet(options);
-const rpcURL = "https://ithacanet.ecadinfra.com";
+const rpcURL = "https://jakartanet.ecadinfra.com";
 const tezos = new TezosToolkit(rpcURL);
 
 class Agent extends Component {
@@ -48,7 +48,7 @@ class Agent extends Component {
 
   checkIfWalletConnected = async (wallet) => {
     await wallet
-      .requestPermissions({ network: { type: 'ithacanet' } })
+      .requestPermissions({ network: { type: 'jakartanet' } })
       .then((_) => wallet.getPKH())
       .then((address) => console.log(`Your address: ${address}`));
     tezos.setWalletProvider(wallet);
@@ -218,7 +218,7 @@ class Agent extends Component {
     .at(config.contractAddress)
     .then((contract) => {
       console.log("math", Math.ceil(fi.monthly_loan))
-        return contract.methods.validationFinancingPlan( fi.user_id, false, fi.etps, Math.ceil(fi.contribution), 12,Math.ceil(fi.monthly_loan), fi.nft_id ).send();
+        return contract.methods.validationFinancingPlan( fi.user_id, false, fi.etps, fi.contribution*1000000000/*Math.ceil(fi.contribution)*/, 12,/*Math.ceil(fi.monthly_loan)*/fi.monthly_loan*1000000000, fi.nft_id ).send();
     })
     .then((op) => {
       validateFPlan(fii).then( res =>{

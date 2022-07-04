@@ -1,30 +1,30 @@
 {
-    "dna": "vDAnUXyLjrpc3E8",
-    "name": "House #18",
+    "dna": "vDAnUXyLjrpc3E2",
+    "name": "House #2",
     "description": "We makes it easy to take steps to find the right House, so you can get the home you want.",
-    "image": "https://gateway.pinata.cloud/ipfs/QmUC9ve4xZe67T74jrPZp8sfdFfQjVSeFqr11YEpW5m3EK/16.png",
-    "edition": 18,
+    "image": "https://gateway.pinata.cloud/ipfs/QmVgLH7F7pS5mjiHsKRtqPpWvZVME6PPLXRiQFx7fcj6DN/2.jpg",
+    "edition": 2,
     "date": 1639268350,
     "attributes": [
         {
             "trait_type": "ROOMS",
-            "value": "7"
+            "value": "4"
         },
         {
             "trait_type": "SQUARE FEET",
-            "value": "500m²"
+            "value": "120m²"
         },
         {
             "trait_type": "PLACE",
-            "value": "242 Faubourg Saint-Antoine"
+            "value": "280 Faubourg Saint-Antoine"
         },
         {
             "trait_type": "PARKING",
-            "value": "YES"
+            "value": "NO"
         },
         {
             "trait_type": "FURNITURE",
-            "value": "YES"
+            "value": "NO"
         }
     ],
     "compiler": "My Blockchain House"

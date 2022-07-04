@@ -13,14 +13,14 @@ import {
     Button
 } from "@material-ui/core";
 import PropertiesHelper from '../shared/PropertiesHelper'
-const preferredNetwork = "ithacanet";
+const preferredNetwork = "jakartanet";
 const options = {
     name: "NFT",
     iconUrl: "https://tezostaquito.io/img/favicon.png",
     preferredNetwork: preferredNetwork,
 };
 const wallet = new BeaconWallet(options);
-const rpcURL = "https://ithacanet.ecadinfra.com";
+const rpcURL = "https://jakartanet.ecadinfra.com";
 const tezos = new TezosToolkit(rpcURL);
 
 class DetailsF extends Component {
@@ -62,7 +62,7 @@ class DetailsF extends Component {
 
     checkIfWalletConnected = async (wallet) => {
         await wallet
-            .requestPermissions({ network: { type: 'ithacanet' } })
+            .requestPermissions({ network: { type: 'jakartanet' } })
             .then((_) => wallet.getPKH())
             .then((address) => console.log(`Your address: ${address}`));
         tezos.setWalletProvider(wallet);
@@ -253,8 +253,7 @@ class DetailsF extends Component {
         }
 
         console.log(this.props.nftP.creator_etps);//agency
-        console.log(this.props.nftP);//yearly_income
-        const yearly_income_draft = 30000;
+        console.log(this.props.user[0].yearly_income);//yearly_income
         const tezos = new TezosToolkit(rpcURL);
         tezos.setWalletProvider(wallet);
         console.log(config.contractAddress);
@@ -270,11 +269,13 @@ class DetailsF extends Component {
             .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
         })
         console.log(this.props);
-        FP.housing_price = this.props.nftP.price;
-        FP.contribution = FP.housing_price * (this.state.rate_insurance+this.state.rate_interest) * 15/100;
-        FP.contribution = Math.ceil(FP.contribution);
+        FP.housing_price = this.props.nftP.price*(1+this.state.rate_insurance+this.state.rate_interest);
+        console.log("housing price",FP.housing_price );
+        FP.contribution = FP.housing_price * 15/100;
+        console.log(FP.contribution, this.state.balance);
         if (FP.contribution < this.state.balance) {
             FP.monthly_loan = (FP.housing_price / 12) * (this.state.rate_insurance+this.state.rate_interest);
+            console.log(FP.monthly_loan, (this.props.user[0].yearly_income / 12));
             if (FP.monthly_loan < (this.props.user[0].yearly_income / 12)){
                 FP.user_id = this.props.user[0].id; // this.props.user
                 FP.nft_id = this.props.nftP.id; 
@@ -310,7 +311,6 @@ class DetailsF extends Component {
                     <h2 className="info">{this.state.attr2}</h2>
                     <h2 className="info">{this.state.attr3}</h2>
                     <h2 className="info">{this.state.attr4}</h2>
-                    <h2 className="info">{this.state.attr5}</h2>
                     <h2 className="info">{this.state.attr5}</h2>
                     <h2 className="info">{"PRICE : " + this.props.nftP.price + " TEZ"}</h2>
                     {this.props.user[0].verified ? <Button onClick={() => this.handler2()} style={{ marginLeft: "25%" }} variant="contained" color="primary">

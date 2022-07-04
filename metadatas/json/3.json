@@ -1,9 +1,9 @@
 {
-    "dna": "vDAnUXyLjrpc3E8",
-    "name": "House #16",
+    "dna": "vDAnUXyLjrpc3E3",
+    "name": "House #3",
     "description": "We makes it easy to take steps to find the right House, so you can get the home you want.",
-    "image": "https://gateway.pinata.cloud/ipfs/QmUC9ve4xZe67T74jrPZp8sfdFfQjVSeFqr11YEpW5m3EK/16.png",
-    "edition": 16,
+    "image": "https://gateway.pinata.cloud/ipfs/QmVgLH7F7pS5mjiHsKRtqPpWvZVME6PPLXRiQFx7fcj6DN/3.jpg",
+    "edition": 3,
     "date": 1639268350,
     "attributes": [
         {
@@ -12,11 +12,11 @@
         },
         {
             "trait_type": "SQUARE FEET",
-            "value": "500m²"
+            "value": "300m²"
         },
         {
             "trait_type": "PLACE",
-            "value": "242 Faubourg Saint-Antoine"
+            "value": "212 Faubourg Saint-Antoine"
         },
         {
             "trait_type": "PARKING",
