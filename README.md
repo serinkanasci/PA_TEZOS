@@ -1,4 +1,4 @@
 # PA_TEZOS
 
 
-Address Public Smart Contract : https://better-call.dev/ghostnet/KT1ESa9vPgiGjL9k1c3jfcprpCUhS2ffWbga/operations on Ithacanet testnet
+Address Public Smart Contract : https://better-call.dev/jakartanet/KT1RKPZ3TXYWT8oFsFakjutc8f48R4Y6mkFe/operations Jakartanet
