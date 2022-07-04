@@ -1,4 +1,4 @@
 # PA_TEZOS
 
 
-Address Public Smart Contract : https://better-call.dev/jakartanet/KT1RKPZ3TXYWT8oFsFakjutc8f48R4Y6mkFe/operations Jakartanet
+Address Public Smart Contract : https://better-call.dev/jakartanet/KT1GvnLG7nVojW4BtgCRb4Vjbt7NuzEUVqRM/operations Jakartanet
