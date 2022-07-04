@@ -36,17 +36,13 @@ const Navbar = () => {
           </div>
         }
         <div className='nav-menu'>
-          <Link className="nav-item" to="/home" onClick={closeMobileMenu}>HOME</Link>
-          <Link className="nav-item" to="/about" onClick={closeMobileMenu}>ABOUT</Link>
-          <Link className="nav-item" to="/agents" onClick={closeMobileMenu}>AGENT</Link>
+          <Link className="nav-item" to="/login" onClick={closeMobileMenu}>LOGIN</Link>
           <Link className="nav-item" to="/properties" onClick={closeMobileMenu}>PROPERTIES</Link>
           <Link className="nav-item" to="/contact" onClick={closeMobileMenu}>CONTACT</Link>
         </div>
       </nav>
       <div className={click ?   'nav-menu-open':'nav-menu-close'}>
-          <Link className="nav-item" to="/home" onClick={closeMobileMenu}>HOME</Link>
-          <Link className="nav-item" to="/about" onClick={closeMobileMenu}>ABOUT</Link>
-          <Link className="nav-item" to="/agents" onClick={closeMobileMenu}>AGENT</Link>
+          <Link className="nav-item" to="/login" onClick={closeMobileMenu}>LOGIN</Link>
           <Link className="nav-item" to="/properties" onClick={closeMobileMenu}>PROPERTIES</Link>
           <Link className="nav-item" to="/contact" onClick={closeMobileMenu}>CONTACT</Link>
       </div>
