@@ -1,13 +1,11 @@
 import { InMemorySigner } from '@taquito/signer';
 import { TezosToolkit, MichelsonMap } from '@taquito/taquito';
 
-import user_json from './FinancingPlan.json' assert {type: 'json'};
+import user_json from './Main.json';
 
-// const Tezos = new TezosToolkit('https://hangzhounet.smartpy.io/');
-// const Tezos = new TezosToolkit('https://testnet-tezos.giganode.io/');
-const Tezos = new TezosToolkit('https://ithacanet.ecadinfra.com');
+const Tezos = new TezosToolkit('https://jakartanet.ecadinfra.com');
 
-const pk = "";
+const pk = ""
 const signer = new InMemorySigner(pk);
 Tezos.setProvider({signer: signer })
 console.log(user_json)
@@ -74,19 +72,19 @@ console.log(user_json)
 let mappinguser = new MichelsonMap();
 let mappingadmin = new MichelsonMap();
 let mappingagent = new MichelsonMap();
-let mappingnft = new MichelsonMap()
+let mappingnft = new MichelsonMap();
 let mappingbalances = new MichelsonMap();
 
 
 Tezos.contract
   .originate({
     code: user_json,
-
+  
     storage: {
       mapping_user: mappinguser,
       mapping_admin: mappingadmin,
       mapping_agent: mappingagent,
-      main_admin : "tz1Vx6pJzXAVqgjaHbrNdkpBfBr764g1T5ni",
+      main_admin : "tz1LykgAH5r5imY4JJciBuusStBNnWGirkt2",
       nfts: mappingnft,
       balances: mappingbalances,
       usable_fund: 0
