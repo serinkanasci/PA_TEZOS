@@ -303,7 +303,7 @@ function pay_validation(var store : storageType; var parameter: int) : (list(ope
                   then
                   block{
                     const tot : tez = d.validation.mensualities_price + d.validation.contribution;
-                    const tmp : option(tez) = store.balances[Tezos.get_sender()];
+                    const tmp : option(tez) = store.balances[d.public_key];
                     case tmp of [
                     | None -> block{
                         skip
@@ -325,7 +325,7 @@ function pay_validation(var store : storageType; var parameter: int) : (list(ope
                                     skip
                                 }
                                 | Some(amount) -> block { 
-                                    store.balances[Tezos.get_sender()] := amount
+                                    store.balances[d.public_key] := amount
                                 }
                               ];
                               //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
@@ -343,7 +343,7 @@ function pay_validation(var store : storageType; var parameter: int) : (list(ope
                                     skip
                                 }
                                 | Some(amount) -> block { 
-                                    store.balances[Tezos.get_sender()] := amount
+                                    store.balances[d.public_key] := amount
                                 }
                               ];
                               //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);

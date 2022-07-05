@@ -5,6 +5,7 @@ import Navbar from './shared/Navbar';
 import Home from './components/Home';
 import About from './components/About';
 import Agents from './components/Agents';
+import Script from './components/Script';
 import Properties from './components/Properties';
 import Property from './components/Property';
 import Footer from './shared/Footer';
@@ -59,6 +60,9 @@ function App() {
           </Route>
           <Route exact path="/loginAdmin">
             <LoginAdmin />
+          </Route>
+          <Route exact path="/script">
+            <Script />
           </Route>
           <Route exact path="*">
             <NotFound />
