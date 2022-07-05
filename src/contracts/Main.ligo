@@ -288,84 +288,74 @@ function withdrawF(var s : storageType; var parameter: tez) : (list(operation) *
 function pay_validation(var store : storageType; var parameter: int) : (list(operation) * storageType) is 
   block {
     if(isAdmin(store.main_admin)) then
-			block{
-				const id : int = parameter;
+	block{
+	  const id : int = parameter;
       case store.mapping_user[id] of [
-        | Some (_bool) -> block {
-            const id : int = parameter;
-            const record_user : option(user_infos) = store.mapping_user[id];
-            case record_user of [
-            | None -> block{
-                skip
-            }
-            | Some(d) -> block {
-                if d.validation.active = True and d.validation.mensualities_months > 0
-                  then
-                  block{
-                    const tot : tez = d.validation.mensualities_price + d.validation.contribution;
-                    const tmp : option(tez) = store.balances[Tezos.get_sender()];
-                    case tmp of [
-                    | None -> block{
-                        skip
-                    }
-                    | Some(b) -> block { 
-                        if b > tot
-                        then
-                        block{
-                          if d.validation.mensualities_months - 1 = 0
-                            then
-                            block{
-                              const pub : address = d.public_key;
-                              const validation : validation = record [active= False; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
-                              const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
-                              store.mapping_user[id] := new_record_user;
-                              const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
-                              case result of [
-                                | None -> block{
-                                    skip
-                                }
-                                | Some(amount) -> block { 
-                                    store.balances[Tezos.get_sender()] := amount
-                                }
-                              ];
-                              //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
-                              store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
-                            }
-                            else
-                            block{
-                              const pub : address = d.public_key;
-                              const validation : validation = record [active= True; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
-                              const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
-                              store.mapping_user[id] := new_record_user;
-                              const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
-                              case result of [
-                                | None -> block{
-                                    skip
-                                }
-                                | Some(amount) -> block { 
-                                    store.balances[Tezos.get_sender()] := amount
-                                }
-                              ];
-                              //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
-                              store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
-                            }
-                          
-                        }
-                        else failwith("Not enough money in the user wallet");
-                    }
-                    ];
-                  }
-                  else skip;
-            }
-            ];
-            
-          skip
-        }
         | None -> block {
           skip
         }
-        ];
-			}
+        | Some (d) -> block {
+            if d.validation.active = True and d.validation.mensualities_months > 0
+                then
+                block{
+                const tot : tez = d.validation.mensualities_price + d.validation.contribution;
+                const tmp : option(tez) = store.balances[d.public_key];
+                case tmp of [
+                | None -> block{
+                    skip
+                }
+                | Some(b) -> block { 
+                    if b > tot
+                    then
+                    block{
+                        if d.validation.mensualities_months - 1 = 0
+                        then
+                        block{
+                            const pub : address = d.public_key;
+                            const validation : validation = record [active= False; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
+                            const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
+                            store.mapping_user[id] := new_record_user;
+                            const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
+                            case result of [
+                            | None -> block{
+                                skip
+                            }
+                            | Some(amount) -> block { 
+                                store.balances[Tezos.get_sender()] := amount
+                            }
+                            ];
+                            //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
+                            store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
+                        }
+                        else
+                        block{
+                            const pub : address = d.public_key;
+                            const validation : validation = record [active= True; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
+                            const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
+                            store.mapping_user[id] := new_record_user;
+                            const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
+                            case result of [
+                            | None -> block{
+                                skip
+                            }
+                            | Some(amount) -> block { 
+                                store.balances[d.public_key] := amount
+                            }
+                            ];
+                            //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
+                            store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
+                        }
+                        
+                    }
+                    else failwith("Not enough money in the user wallet");
+                }
+                ];
+                }
+            else skip;
+            }
+            ];
+          skip
+        }
 		else failwith("You are not admin");
       
   }
