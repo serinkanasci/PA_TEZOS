@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import './App.css';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Navbar from './shared/Navbar';
-import Home from './components/Home';
-import About from './components/About';
-import Agents from './components/Agents';
 import Script from './components/Script';
 import Properties from './components/Properties';
 import Property from './components/Property';
@@ -33,16 +30,7 @@ function App() {
           <Route exact path="/register">
             <Register />
           </Route>
-          <Route exact path="/home">
-            <Home />
-          </Route>
           <PrivateRoute exact path="/funding" component={Funding} authed={localStorage.getItem('user')} />
-          <Route exact path="/about">
-            <About />
-          </Route>
-          <Route exact path="/agents">
-            <Agents />
-          </Route>
           <Route exact path="/properties">
             <Properties />
           </Route>
