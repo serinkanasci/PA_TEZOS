@@ -10,7 +10,8 @@ import '../styles/properties.css';
 import '../styles/property.css';
 import {
     TextField,
-    Button
+    Button,
+    Fab
 } from "@material-ui/core";
 import PropertiesHelper from '../shared/PropertiesHelper'
 const preferredNetwork = "jakartanet";
@@ -120,6 +121,7 @@ class DetailsF extends Component {
         const tezos = new TezosToolkit(rpcURL);
         tezos.setWalletProvider(wallet);
         console.log(config.contractAddress);
+        
         if (typeof this.props.nft !== "undefined") {
             return this.props.nft.map((nft, index) => {
                 console.log("RENDER NFTS", this.state.varTab[index]);
@@ -274,7 +276,7 @@ class DetailsF extends Component {
         FP.contribution = FP.housing_price * 15/100;
         console.log(FP.contribution, this.state.balance);
         if (FP.contribution < this.state.balance) {
-            FP.monthly_loan = (FP.housing_price / 12) * (this.state.rate_insurance+this.state.rate_interest);
+            FP.monthly_loan = ((FP.housing_price-FP.contribution) / 12);
             console.log(FP.monthly_loan, (this.props.user[0].yearly_income / 12));
             if (FP.monthly_loan < (this.props.user[0].yearly_income / 12)){
                 FP.user_id = this.props.user[0].id; // this.props.user

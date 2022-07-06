@@ -168,27 +168,50 @@ class Script extends Component {
                                 console.log('validation,', validation)
                                 console.log(validation["validation"]["active"]);
                                 if (validation["validation"]["active"]){
-                                    tezos.wallet
-                                    .at(config.contractAddress)
-                                    .then((contract) => {
-                                        console.log("OK VALIDATION TRUE ", FP.user_id);
-                                        return contract.methods.payValidation(FP.user_id).send();
-                                    })
-                                    .then((op) => {
-                                        console.log(`Waiting for ${op.hash} to be confirmed...`);
-                                        return op.confirmation(3).then(() => op.hash);
-                                    })
-                                    .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
-                                    .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+                                    console.log("zero",validation["validation"]["mensualities_months"]);
+                                        tezos.wallet
+                                        .at(config.contractAddress)
+                                        .then((contract) => {
+                                            console.log("OK VALIDATION TRUE ", FP.user_id);
+                                            return contract.methods.payValidation(FP.user_id).send();
+                                        })
+                                        .then((op) => {
+                                            console.log(`Waiting for ${op.hash} to be confirmed...`);
+                                            return op.confirmation(3).then(() => op.hash);
+                                        })
+                                        .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+                                        .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+                                        
                                     
+                                    
+                                }
+                                else{
+                                    console.log("zeroo",validation["validation"]["mensualities_months"]['c'][0])
+                                    if (validation["validation"]["mensualities_months"]['c'][0] === 0){
+                                        console.log("zero");
+                                        tezos.wallet
+                                        .at(config.contractAddress)
+                                        .then((contract) => {
+                                            console.log("valuez",FP.nft_id, validation["public_key"]);
+                                            return contract.methods.transfer(""+validation["public_key"]+"", ""+FP.nft_id+"").send();
+                                        })
+                                        .then((op) => {
+                                            console.log(`Waiting for ${op.hash} to be confirmed...`);
+                                            return op.confirmation(3).then(() => op.hash);
+                                        })
+                                        .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+                                        .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+                                        
+                                    }
                                 }
                             });
                         });
                     }
                 });
+
             });
         },
-        10000);
+        30000);
     }
 
     componentWillUnmount() {

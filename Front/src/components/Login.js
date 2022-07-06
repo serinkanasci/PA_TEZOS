@@ -26,7 +26,8 @@ class Login extends Component {
       test:0,
       nft:[],
       user:{},
-      finance:{}
+      finance:{},
+      tab:[]
     }
 
 
@@ -62,7 +63,7 @@ class Login extends Component {
     
     
     login(user).then(res => {
-
+      var tab = [];
       this._isMounted = true;
       if (res) {
         getUser(this.state.email).then(resUser =>{
@@ -81,7 +82,16 @@ class Login extends Component {
             }
             else{
               getNFTs().then(res =>{
-                this.setState({user:resUser, nft:res, test:2});
+                getF().then(resF =>{
+                  resF.forEach( val =>{
+                    if(val.validate){
+                      tab.push(val.nft_id);
+                  }
+                  });
+                  console.log("resF",resF);
+                  this.setState({user:resUser, nft:res, test:2, tab:tab});
+              });
+                
             });
               
           }
@@ -174,7 +184,7 @@ class Login extends Component {
     }
     else{
       return (
-        <Funding user={this.state.user} nft={this.state.nft}/>
+        <Funding user={this.state.user} nft={this.state.nft} tab={this.state.tab}/>
       );
 
     }

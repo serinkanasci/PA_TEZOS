@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import jwt_decode from 'jwt-decode';
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
-import { getEtpsName, upload, customGet, getNFT } from '../api/functions';
+import { getEtpsName, upload, customGet, getNFT, getF } from '../api/functions';
 import config from "../config";
 import '../styles/properties.css';
 import '../styles/property.css';
@@ -35,7 +35,8 @@ class Funding extends Component {
       nftclicked: 1,
       detailT: [],
       selectedFile: null,
-      nftP:{}
+      nftP:{},
+      act:0
     }
 
 
@@ -111,13 +112,13 @@ class Funding extends Component {
         .storage()
         .then((myStorage) => {
           console.log("NFT A ",);
-          var n = nft+1;
+          var n = nft;
           const nftT = myStorage["nfts"].get('' + n + '');
-          console.log("NFT T ", nftT.address_uri);
+          console.log("get the nfts : ", nftT);
           if (typeof nftT !== 'undefined') {
             if (nftT.address_uri.startsWith("https")) {
               console.log("URI", nftT);
-
+              console.log("RESS  ", nftT.address_uri);
               customGet(nftT.address_uri).then(res => {
                 console.log("RESS  ", nftT);
                 if (typeof res !== "undefined") {
@@ -152,56 +153,38 @@ class Funding extends Component {
     console.log(config.contractAddress);
     console.log("nft funct");
     console.log(this.props.nft);
-    if (typeof this.props.nft !== "undefined") {
-      return this.props.nft.map((nft, index) => {
-        console.log("RENDER NFTS", this.state.varTab[nft.id-1]);
-        let imageT = this.state.varTab[nft.id-1];
-        if (typeof imageT !== "undefined") {
-          console.log("test user");
-          console.log(this.props.user);
-          return (<div className="card" onClick={() => this.handleClick(nft.id-1)} ><PropertiesHelper image={imageT[0]} info={imageT[1]} info2={nft.price} /></div>);
-          
+    var tab = [];
+   
+
+  if (typeof this.props.nft !== "undefined") {
+    return this.props.nft.map((nft, index) => {
+        console.log("RENDER NFTS", this.state.varTab[index]);
+        let imageT = this.state.varTab[index];
+        var ban = false;
+        this.props.tab.forEach(t =>{
+         if(t === nft.id){
+           ban = true;
+         }
+        })
+        if(ban){
+            console.log("if");
+            return null;
         }
-        else {
-          return (<PropertiesHelper image={""} info={""} />);
+        else{
+          console.log("else");
+          console.log(imageT);
+            if (typeof imageT !== "undefined") {
+                return (<div className="card" onClick={() => this.handleClick(nft.id)} ><PropertiesHelper image={imageT[0]} info={imageT[1]} info2={nft.price}/></div>);
+            }
+            else {
+                return (<PropertiesHelper image={""} info={""} />);
+            }
         }
+        
 
 
-        // console.log(nft.creator_etps);
-        // tezos.contract.at(config.contractAddress).then((myContract) => {
-        //   return myContract
-        //     .storage()
-        //     .then((myStorage) => {
-        //       const nftT = myStorage["nfts"].get(''+nft.id+'');
-        //       if(typeof nftT !== 'undefined'){
-        //         if(nftT.address_uri.startsWith("http")){
-        //           customGet(nftT.address_uri).then( res =>{
-        //             console.log(res)
-        //             if (typeof res !== "undefined"){
-        //             if(res.length === 1){
-        //               const imageT = res.image;
-        //               return(<PropertiesHelper image="assets/home3.png" info="Housing 3"/>);
-        //                // this.setState({entreprise:agent.agency}); <PropertiesHelper image={imageT} info={res.name}/>
-        //             }
-        //           }
-        //           else{
-        //             return null;
-        //           }
-        //         });
-        //         }
-        //         else{
-        //           return null;
-        //         }
-
-        //       }
-        //     })
-
-        //     //.catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`) );
-        //   })
-
-
-      });
-    }
+    });
+}
 
     return null;
 

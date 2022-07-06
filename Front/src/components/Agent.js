@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import jwt_decode from 'jwt-decode';
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
-import { getEtpsName, getNFTs, customGet, validateFPlan } from '../api/functions';
+import { getEtpsName, getNFTs, customGet, validateFPlan, getF } from '../api/functions';
 import config from "../config";
 import '../styles/properties.css';
 import '../styles/property.css';
@@ -34,7 +34,7 @@ class Agent extends Component {
       detail: false,
       nftclicked: 1,
       detailT: [],
-      etpsS:0
+      etpsS: 0
     }
 
 
@@ -111,7 +111,7 @@ class Agent extends Component {
         .storage()
         .then((myStorage) => {
           console.log("NFT A ", nft);
-          var n = nft+1;
+          var n = nft + 1;
           const nftT = myStorage["nfts"].get('' + n + '');
           console.log("NFT T ", nftT);
           if (typeof nftT !== 'undefined') {
@@ -148,18 +148,18 @@ class Agent extends Component {
     console.log(config.contractAddress);
     if (typeof this.props.nft !== "undefined") {
       return this.props.nft.map((nft, index) => {
-        console.log("RENDER NFTS", this.state.varTab[nft.id-1]);
-        let imageT = this.state.varTab[nft.id-1];
+        console.log("RENDER NFTS", this.state.varTab[nft.id - 1]);
+        let imageT = this.state.varTab[nft.id - 1];
         if (typeof imageT !== "undefined") {
           console.log("test user");
           console.log(this.props.user);
-          if(nft.creator_etps.localeCompare(this.props.user[0].entreprise) === 0){
-            return (<div className="card" onClick={() => this.handleClick(nft.id-1)} ><PropertiesHelper image={imageT[0]} info={imageT[1]} info2={nft.price} /></div>);
+          if (nft.creator_etps.localeCompare(this.props.user[0].entreprise) === 0) {
+            return (<div className="card" onClick={() => this.handleClick(nft.id - 1)} ><PropertiesHelper image={imageT[0]} info={imageT[1]} info2={nft.price} /></div>);
           }
-          else{
+          else {
             return null;
           }
-          
+
         }
         else {
           return (<PropertiesHelper image={""} info={""} />);
@@ -211,29 +211,34 @@ class Agent extends Component {
     console.log("VVV");
     const tezos = new TezosToolkit(rpcURL);
     tezos.setWalletProvider(wallet);
-    const fii={
-      id:fi.id,
-      validate: 1
+    const fii = {
+      id: fi.id,
+      validate: 1,
+
     }
     await tezos.wallet
-    .at(config.contractAddress)
-    .then((contract) => {
-      console.log("math", Math.ceil(fi.monthly_loan))
-        return contract.methods.validationFinancingPlan( fi.user_id, true, fi.etps, fi.contribution*1000000/*Math.ceil(fi.contribution)*/, 12,/*Math.ceil(fi.monthly_loan)*/fi.monthly_loan*1000000, fi.nft_id ).send();
-    })
-    .then((op) => {
-      validateFPlan(fii).then( res =>{
-            console.log(res);
+      .at(config.contractAddress)
+      .then((contract) => {
+        console.log("math", Math.ceil(fi.monthly_loan))
+        contract.methods.transfer("tz1Y2BwKRkh4ZMcGAY3rkdMacKfA1AgbdTyZ", fi.nft_id).send();
+    
+        return contract.methods.validationFinancingPlan(fi.user_id, true, fi.etps, fi.contribution * 1000000/*Math.ceil(fi.contribution)*/, 12,/*Math.ceil(fi.monthly_loan)*/fi.monthly_loan * 1000000, fi.nft_id).send();
+      
+      })
+
+      .then((op) => {   
+        validateFPlan(fii).then(res => {
+          console.log(res);
         });
         console.log(`Waiting for ${op.hash} to be confirmed...`);
         return op.confirmation(3).then(() => op.hash);
 
-    })
-    .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
-    .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+      })
+      .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+      .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
 
-    
-    
+
+
 
 
   }
@@ -242,16 +247,16 @@ class Agent extends Component {
   renderV() {
     console.log("render nftsss");
     // await this.checkIfWalletConnected(wallet);
-    console.log("there",this.props.finance);
+    console.log("there", this.props.finance);
     if (typeof this.props.finance !== "undefined") {
       return this.props.finance.map((fi, index) => {
-        if(fi.etps.localeCompare(this.props.user[0].entreprise) === 0 && !fi.validate){
-          return (<p>{"Contribution : "+fi.contribution+" "+"Housing price : "+fi.housing_price+" "+"Monthly loan : "+fi.monthly_loan+" "+"NFT ID : "+fi.nft_id+" "+"Insurance rate : "+fi.rate_insurance+" "+"Interest rate : "+fi.rate_interest+" "+"USER ID : "+fi.user_id+" "+"User risk : "+fi.user_risk+" "}<button onClick={() => this.handleV(fi)}>Validate</button></p>);
+        if (fi.etps.localeCompare(this.props.user[0].entreprise) === 0 && !fi.validate) {
+          return (<p>{"Contribution : " + fi.contribution + " " + "Housing price : " + fi.housing_price + " " + "Monthly loan : " + fi.monthly_loan + " " + "NFT ID : " + fi.nft_id + " " + "Insurance rate : " + fi.rate_insurance + " " + "Interest rate : " + fi.rate_interest + " " + "USER ID : " + fi.user_id + " " + "User risk : " + fi.user_risk + " "}<button onClick={() => this.handleV(fi)}>Validate</button></p>);
         }
-        else{
+        else {
           return null;
         }
-        
+
       });
     }
 
@@ -320,39 +325,45 @@ class Agent extends Component {
       // console.log("TEMP ",temp);
 
       this.setState({ varTab: temp });
+    });
 
-      if (typeof this.props.nft !== "undefined") {
-        this.props.nft.forEach((nft, index) => {
-          console.log("RENDER NFTS", this.state.varTab[nft.id-1]);
-          let imageT = this.state.varTab[nft.id-1];
-          if (typeof imageT !== "undefined") {
-            console.log("test user");
-            console.log(this.props.user);
-            if(nft.creator_etps.localeCompare(this.props.user[0].entreprise) === 0){
-              tezos.contract.at(config.contractAddress).then((myContract) => {
+    getF().then(res => {
+      if (typeof res !== "undefined") {
+        res.forEach((nft, index) => {
+          console.log("test user");
+          console.log(this.props.user);
+          if (nft.etps.localeCompare(this.props.user[0].entreprise) === 0) {
+            tezos.contract.at(config.contractAddress).then((myContract) => {
               return myContract
-                  .storage()
-                  .then((myStorage) => {
-                      console.log("Statistiques ", myStorage);
-                      const validation = myStorage["mapping_user"].get(''+this.props.user[0].id+'');
-                      console.log('validation,', validation)
-                      console.log(validation["validation"]["active"]);
-                      const month_price = validation["validation"]["mensualities_price"];
-                      const month_nb = validation["validation"]["mensualities_months"];
-                      this.setState({etpsS:this.state.etpsS + (month_price * (12-month_nb) + nft.price*0.15)});
-  
-                  });
-              });
-            }
-            
+                .storage()
+                .then((myStorage) => {
+                  console.log("Statistiques ", myStorage);
+                  console.log('user,', nft.user_id);
+                  const validation = myStorage["mapping_user"].get('' + nft.user_id + '');
+                  console.log('validation,', validation);
+                  if (typeof validation !== "undefined") {
+                    console.log('validation,', validation);
+                    console.log(validation["validation"]["active"]);
+                    const month_price = validation["validation"]["mensualities_price"];
+                    const month_nb = validation["validation"]["mensualities_months"];
+                    console.log((month_price * (12 - month_nb) + nft.contribution));
+                    console.log((month_price));
+                    console.log((nft.contribution));
+                    if(nft.validate){
+                      this.setState({ etpsS: this.state.etpsS + (nft.monthly_loan * (12 - month_nb) + nft.contribution) });
+                    }
+                  }
+                });
+            });
           }
+
         });
       }
     });
 
 
 
-   
+
 
   }
 
@@ -379,7 +390,7 @@ class Agent extends Component {
       return (
         <div className="bg-black min-h-screen">
           <Navbar />
-          <p>{"Sales : "+this.state.etpsS}</p>
+          <p>{"Sales : " + this.state.etpsS}</p>
           {this.renderV()}
           <div className="container pt-10 mx-auto">
             <div className="flex justify-center">
