@@ -17,6 +17,7 @@ export default function Navbar() {
   const rpcURL = "https://jakartanet.ecadinfra.com";
 
   const handleConnectWallet = async () => {
+    const { wallet2 } = await connectWallet();
     const { wallet } = await connectWallet();
     setWallet(wallet);
   };

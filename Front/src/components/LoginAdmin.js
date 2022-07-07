@@ -30,7 +30,8 @@ class LoginAdmin extends Component {
             entreprise: "",
             entrepriseC: "",
             entrepriseCode: "",
-            verify:""
+            verify:"",
+            adminS:0
         }
         this.onChange = this.onChange.bind(this);
         this.onBanAgent = this.onBanAgent.bind(this);
@@ -148,6 +149,18 @@ class LoginAdmin extends Component {
     componentDidMount() {
         this._isMounted = true;
         this.isAdmin()
+        tezos.contract.at(config.contractAddress).then((myContract) => {
+            return myContract
+              .storage()
+              .then((myStorage) => {
+                console.log("Statistiques ", myStorage);
+                const usable = myStorage["usable_fund"];
+                console.log('usable,', usable);
+                if (typeof usable !== "undefined") {
+                    this.setState({ adminS: usable/1000000 });
+                }
+              });
+          });
     }
 
     componentWillUnmount() {
@@ -169,6 +182,7 @@ class LoginAdmin extends Component {
             return (
                 <div className="flex">
                     <div id="block1">
+                    <p>{"Sales : " + this.state.adminS}</p>
                         <div id='img_p'>
                             <input
                                 type="text"
