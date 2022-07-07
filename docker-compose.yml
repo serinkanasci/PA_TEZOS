@@ -1,0 +1,36 @@
+version: "3.8"
+services:  
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - ./api/script.sql:/docker-entrypoint-initdb.d
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: patezos
+      MYSQL_USER: root
+      MYSQL_PASSWORD: pwd
+    ports:
+      - "3306:3306"
+    expose:
+      - '3306'
+  apireact:
+    image: 'node:10-alpine'
+    container_name: "apireact"
+    volumes:
+      - './api:/api'
+    working_dir: '/api'
+    command: sh -c "pwd && ls && npm install && npm start"
+    ports:
+      - '5000:5000'
+    depends_on:
+      - 'mysql'
+  webreact:
+    image: loulmi/pa_tezos_front_v3:latest
+    container_name: "webreact"
+    ports:
+      - '3000:3000'
+    depends_on:
+      - 'apireact'
+volumes: 
+  db: 
