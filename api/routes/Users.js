@@ -3,21 +3,18 @@ const users = express.Router()
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-
+var basicAuth = require("express-basic-auth")
 const User = require('../models/User')
-const UserAgent = require('../models/UserAgent')
 const FinancingPlan = require('../models/FinancingPlan')
 const Nft = require('../models/Nft')
 const Etps = require('../models/Etps')
-
-var nodemailer = require('nodemailer');
 var fs = require('fs');
 
 var multer  = require('multer');
-const Etps = require('../models/Etps')
+
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, process.env.PATH_FILE);
+      cb(null, "D:/tempo/");
     },
     filename: (req, file, cb) => {
       console.log(file);
@@ -31,10 +28,23 @@ var storage = multer.diskStorage({
       if(file.mimetype === 'image/jpeg') {
         filetype = 'jpg';
       }
-      cb(null, 'image-' + Date.now() + '.' + filetype);
+      if(file.mimetype === 'application/json') {
+        filetype = 'json';
+      }
+      cb(null, file.originalname+'-'+ Date.now() + '.' + filetype);
     }
 });
 var upload = multer({storage: storage});
+
+
+users.post('/upload',upload.single('file'),function(req, res, next) {
+  console.log(req.file);
+  if(!req.file) {
+    res.status(500);
+    return next(err);
+  }
+  res.json({ fileUrl: 'http://localhost:5000/tempo/' + req.file.filename });
+})
 
 
 
@@ -42,25 +52,6 @@ var upload = multer({storage: storage});
 users.use(cors())
 
 process.env.SECRET_KEY = 'secret'
-
-
-const ipfilter = require('express-ipfilter-secured').IpFilter
-
-const ips = ['::ffff:']
-
-
-users.get('/check/:check',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
-  var check = req.params.check;
-  try {
-    jwt.verify(check, process.env.SECRET_KEY);
- } catch(ex) {
-   res.send('error')
- }
-  res.send("ok");
-
-})
-
-
 
 function myAuthorizer(username, password) {
     const userMatches = basicAuth.safeCompare(username, process.env.ID)
@@ -71,10 +62,38 @@ function myAuthorizer(username, password) {
 
 // User 
 
+
+
+users.get('/profile', (req, res) => {
+  let bearer = req.headers['authorization'];
+  if(bearer.startsWith('Bearer ')){
+      let test = bearer.replace('Bearer ','');
+      var decoded = jwt.verify(test, process.env.SECRET_KEY);
+  }
+  else{
+      var decoded = jwt.verify(bearer, process.env.SECRET_KEY);
+  }
+
+  User.findOne({
+    where: {
+      id: decoded.id
+    }
+  })
+    .then(user => {
+      if (user) {
+        res.json(user)
+      } else {
+        res.send('User does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
 users.post('/register',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
   
   const userData = {
-    id: req.body.id,
     firstname: req.body.firstname,
     lastname: req.body.lastname,
     post_addr: req.body.post_addr,
@@ -84,9 +103,11 @@ users.post('/register',basicAuth( { authorizer: myAuthorizer } ), (req, res) => 
     phone_number: req.body.phone_number,
     mail_addr: req.body.mail_addr,
     pwd: req.body.pwd,
-    public_key: req.body.public_key,
     mensuality: req.body.mensuality,
     birth_date: req.body.birth_date,
+    entreprise: req.body.entreprise,
+    yearly_income: req.body.yearly_income,
+    verified: req.body.verified,
     is_banned: req.body.is_banned
   }
 
@@ -98,8 +119,8 @@ users.post('/register',basicAuth( { authorizer: myAuthorizer } ), (req, res) => 
   })
     .then(user => {
       if (!user) {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          userData.password = hash
+        bcrypt.hash(req.body.pwd, 10, (err, hash) => {
+          userData.pwd = hash
           User.create(userData)
             .then(user => {
               res.json({ status: user.mail_addr + ' Registered!' })
@@ -140,7 +161,7 @@ users.get('/user/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
 
   User.findAll({
     where: {
-      id: r_id
+      mail_addr: r_id
     }
   })
     .then(user => {
@@ -178,9 +199,11 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
     phone_number: req.body.phone_number,
     mail_addr: req.body.mail_addr,
     pwd: req.body.pwd,
-    public_key: req.body.public_key,
+    entreprise: req.body.entreprise,
     mensuality: req.body.mensuality,
     birth_date: req.body.birth_date,
+    yearly_income: req.body.yearly_income,
+    verified: req.body.verified,
     is_banned: req.body.is_banned
   }
 
@@ -191,7 +214,7 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
   })
     .then(user => {
       if (user) {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
+        bcrypt.hash(req.body.pwd, 10, (err, hash) => {
           user.update({
             firstname: req.body.firstname,
             lastname: req.body.lastname,
@@ -202,9 +225,11 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
             phone_number: req.body.phone_number,
             mail_addr: req.body.mail_addr,
             pwd: req.body.pwd,
-            public_key: req.body.public_key,
+            entreprise: req.body.entreprise,
             mensuality: req.body.mensuality,
             birth_date: req.body.birth_date,
+            yearly_income: req.body.yearly_income,
+            verified: req.body.verified,
             is_banned: req.body.is_banned
 
         });
@@ -223,12 +248,98 @@ users.put('/update_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, re
   })
 
 
+  users.put('/verify_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
+    var check = req.params.id;
+    const userData = {
+      verified: req.body.verified,
+    }
+  
+    User.findOne({
+      where: {
+        mail_addr: check
+      }
+    })
+      .then(user => {
+        if (user) {
+          bcrypt.hash(req.body.pwd, 10, (err, hash) => {
+            user.update({
+              verified: req.body.verified,
+  
+          });
+  
+          res.json(user);
+          })
+        } else {
+          res.send('User does not exist');
+        }
+      })
+      .catch(err => {
+        res.send('error: ' + err);
+      })
+  
+  
+    })
+
+
+  users.put('/ban_user/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
+    var check = req.params.id;
+  
+    User.findOne({
+      where: {
+        mail_addr: check
+      }
+    })
+      .then(user => {
+        if (user) {
+          user.update({
+            is_banned: req.body.is_banned
+
+        });
+        } else {
+          res.send('User does not exist');
+        }
+      })
+      .catch(err => {
+        res.send('error: ' + err);
+      })
+  
+  
+    })
+
+
+  users.post('/login'/*,ipfilter(ips, {detectIp: customDetection, mode:"deny"})*/,basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
+    
+    User.findOne({
+      where: {
+        mail_addr: req.body.mail_addr
+      }
+    })
+      .then(user => {
+        if (user) {
+          if (bcrypt.compareSync(req.body.pwd, user.pwd)) {
+            let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
+              expiresIn: 1800
+            })
+            res.send(token)
+          }
+          else{
+            res.status(401).json({ error: 'Password does not exist' })
+          }
+        }
+         else {
+          res.status(400).json({ error: 'User does not exist' })
+        }
+      })
+      .catch(err => {
+        res.status(400).json({ error: err })
+      })
+  })
+
 // Entreprises 
 
-users.post('/createEtp',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
+users.post('/createEtps',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
   
-  const etpData = {
-    id: etps.id,
+  const etpsData = {
     access_code: req.body.access_code,
     entreprise: req.body.entreprise,
     is_banned: req.body.is_banned
@@ -237,14 +348,14 @@ users.post('/createEtp',basicAuth( { authorizer: myAuthorizer } ), (req, res) =>
 
   Etps.findOne({
     where: {
-      entreprise: req.body.entreprise
+      access_code: req.body.entreprise
     }
   })
-    .then(etp => {
-      if (!etp) {
-        Etps.create(etpData)
-          .then(etp => {
-            res.json({ status: etp.entreprise + ' Registered!' })
+    .then(etps => {
+      if (!etps) {
+        Etps.create(etpsData)
+          .then(etps => {
+            res.json({ status: etps.entreprise + ' Registered!' })
           })
           .catch(err => {
             res.send('error: ' + err)
@@ -263,9 +374,9 @@ users.post('/createEtp',basicAuth( { authorizer: myAuthorizer } ), (req, res) =>
 users.get('/etps', basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
   Etps.findAll({
   })
-    .then(etp => {
-      if (etp) {
-        res.json(etp)
+    .then(etps => {
+      if (etps) {
+        res.json(etps)
       } else {
         res.send('No one')
       }
@@ -276,17 +387,17 @@ users.get('/etps', basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
 })
 
 
-users.get('/etp/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
+users.get('/etps/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
   var r_id = req.params.id;
 
   Etps.findAll({
     where: {
-      id: r_id
+      access_code: r_id
     }
   })
-    .then(etp => {
-      if (etp) {
-        res.json(etp)
+    .then(etps => {
+      if (etps) {
+        res.json(etps)
       } else {
         res.send('Entreprise does not exist')
       }
@@ -296,7 +407,27 @@ users.get('/etp/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
     })
 })
 
-users.delete('/delete_etp/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
+users.get('/etpsByName/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
+  var r_id = req.params.id;
+
+  Etps.findAll({
+    where: {
+      entreprise: r_id
+    }
+  })
+    .then(etps => {
+      if (etps) {
+        res.json(etps)
+      } else {
+        res.send('Entreprise does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+users.delete('/delete_etps/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
 
   var r_id = req.params.id;
 
@@ -307,28 +438,22 @@ users.delete('/delete_etp/:id', basicAuth( { authorizer: myAuthorizer } ),(req, 
 
 
 
-users.put('/update_etp/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
+users.put('/update_etps/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
   var check = req.params.id;
-  const etpData = {
-    access_code: req.body.access_code,
-    entreprise: req.body.entreprise,
-    is_banned: req.body.is_banned
-  }
-
   Etps.findOne({
     where: {
       id: check
     }
   })
-    .then(etp => {
-      if (user) {
-        etp.update({
+    .then(etps => {
+      if (etps) {
+        etps.update({
           access_code: req.body.access_code,
           entreprise: req.body.entreprise,
           is_banned: req.body.is_banned
 
         });
-        res.json(etp);
+        res.json(etps);
       } else {
         res.send('Entreprise does not exist');
       }
@@ -340,6 +465,32 @@ users.put('/update_etp/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res
 
   })
 
+  users.put('/ban_etps/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
+    var check = req.params.id;
+  
+    Etps.findOne({
+      where: {
+        entreprise: check
+      }
+    })
+      .then(etps => {
+        if (etps) {
+          etps.update({
+            is_banned: req.body.is_banned
+  
+          });
+          res.json(etps);
+        } else {
+          res.send('Entreprise does not exist');
+        }
+      })
+      .catch(err => {
+        res.send('error: ' + err);
+      })
+  
+  
+    })
+
 
 
   // Financing Plan
@@ -347,38 +498,25 @@ users.put('/update_etp/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res
   users.post('/create_financing_plan',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
   
     const financingPlanData = {
-      id: req.body.id,
       rate_interest: req.body.rate_interest,
       rate_insurance: req.body.rate_insurance,
-      yearly_income: req.body.yearly_income,
       contribution: req.body.contribution,
       monthly_loan: req.body.monthly_loan,
       housing_price: req.body.housing_price,
       user_risk: req.body.user_risk,
-      age: req.body.age
+      user_id: req.body.user_id,
+      nft_id: req.body.nft_id,
+      validate: req.body.validate,
+      etps: req.body.etps
     }
 
-    FinancingPlan.findOne({
-      where: {
-        id: req.body.id
-      }
-    })
-      .then(financing_plan => {
-        if (!financing_plan) {
-          FinancingPlan.create(financingPlanData)
+    FinancingPlan.create(financingPlanData)
             .then(financing_plan => {
-              res.json({ status: financing_plan.id + ' Registered!' })
+              res.json({ status: financing_plan })
             })
             .catch(err => {
               res.send('error: ' + err)
             })
-        } else {
-          res.json({ error: 'Financing Plan already exists' })
-        }
-      })
-      .catch(err => {
-        res.send('error: ' + err)
-      })
   })
   
   
@@ -435,12 +573,14 @@ users.put('/update_etp/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res
     const financingPlanData = {
       rate_interest: req.body.rate_interest,
       rate_insurance: req.body.rate_insurance,
-      yearly_income: req.body.yearly_income,
       contribution: req.body.contribution,
       monthly_loan: req.body.monthly_loan,
       housing_price: req.body.housing_price,
       user_risk: req.body.user_risk,
-      age: req.body.age
+      user_id: req.body.user_id,
+      nft_id: req.body.nft_id,
+      validate: req.body.validate,
+      etps: req.body.etps
     }
   
     FinancingPlan.findOne({
@@ -449,16 +589,18 @@ users.put('/update_etp/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res
       }
     })
       .then(financing_plan => {
-        if (user) {
+        if (financing_plan) {
           financing_plan.update({
             rate_interest: req.body.rate_interest,
             rate_insurance: req.body.rate_insurance,
-            yearly_income: req.body.yearly_income,
             contribution: req.body.contribution,
             monthly_loan: req.body.monthly_loan,
             housing_price: req.body.housing_price,
             user_risk: req.body.user_risk,
-            age: req.body.age
+            user_id: req.body.user_id,
+            nft_id: req.body.nft_id,
+            validate: req.body.validate,
+            etps: req.body.etps
           });
           res.json(financing_plan);
         } else {
@@ -473,145 +615,35 @@ users.put('/update_etp/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res
     })
 
 
-
-// User Agent
-
-
-users.post('/create_user_agent',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
-  
-  const user_agentData = {
-    id: req.body.id,
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    phone_number: req.body.phone_number,
-    mail_addr: req.body.mail_addr,
-    pwd: req.body.pwd,
-    public_key: req.body.public_key,
-    entreprise: req.body.entreprise,
-    is_banned: req.body.is_banned
-  }
-
-
-  UserAgent.findOne({
-    where: {
-      mail_addr: req.body.mail_addr
-    }
-  })
-    .then(user_agent => {
-      if (!user_agent) {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          user_agentData.password = hash
-          UserAgent.create(user_agentData)
-            .then(user_agent => {
-              res.json({ status: user_agent.mail_addr + ' Registered!' })
-            })
-            .catch(err => {
-              res.send('error: ' + err)
-            })
+    users.put('/validate_financing_plan/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
+      var check = req.params.id;
+      console.log(req.body.validate);
+      const financingPlanData = {
+        validate: req.body.validate,
+      }
+    
+      FinancingPlan.findOne({
+        where: {
+          id: check
+        }
+      })
+        .then(financing_plan => {
+          if (financing_plan) {
+            financing_plan.update({
+              validate: req.body.validate,
+            });
+            res.json(financing_plan);
+          } else {
+            res.send('Financing Plan does not exist');
+          }
         })
-      } else {
-        res.json({ error: 'User Agent with this mail address already exists' })
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-
-
-
-users.get('/user_agents', basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
-  UserAgent.findAll({
-  })
-    .then(user_agent => {
-      if (user_agent) {
-        res.json(user_agent)
-      } else {
-        res.send('No one')
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-
-
-users.get('/user_agent/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
-  var r_id = req.params.id;
-
-  UserAgent.findAll({
-    where: {
-      id: r_id
-    }
-  })
-    .then(user_agent => {
-      if (user_agent) {
-        res.json(user_agent)
-      } else {
-        res.send('User Agent does not exist')
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-
-users.delete('/delete_user_agent/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
-
-  var r_id = req.params.id;
-
-  UserAgent.destroy({where: {
-      id: r_id
-    }}).then(function () { res.send('Ok') });
-})
-
-
-
-users.put('/update_user_agent/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
-  var check = req.params.id;
-  const user_agentData = {
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    phone_number: req.body.phone_number,
-    mail_addr: req.body.mail_addr,
-    pwd: req.body.pwd,
-    public_key: req.body.public_key,
-    entreprise: req.body.entreprise,
-    is_banned: req.body.is_banned
-  }
-
-  UserAgent.findOne({
-    where: {
-      id: check
-    }
-  })
-    .then(user_agent => {
-      if (user_agent) {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          user_agent.update({
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            phone_number: req.body.phone_number,
-            mail_addr: req.body.mail_addr,
-            pwd: req.body.pwd,
-            public_key: req.body.public_key,
-            entreprise: req.body.entreprise,
-            is_banned: req.body.is_banned
-
-        });
-
-        res.json(user_agent);
+        .catch(err => {
+          res.send('error: ' + err);
         })
-      } else {
-        res.send('User Agent does not exist');
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err);
-    })
+    
+    
+      })
 
-
-  })
 
 
 
@@ -621,22 +653,21 @@ users.put('/update_user_agent/:id', basicAuth( { authorizer: myAuthorizer } ),(r
 users.post('/create_nft',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
   
   const nftData = {
-    id: req.body.id,
-    nftId: req.body.nftId,
+    nftUri: req.body.nftUri,
     creator_etps: req.body.creator_etps,
     price: req.body.price
   }
 
   Nft.findOne({
     where: {
-      nftId: req.body.nftId
+      nftUri: req.body.nftUri
     }
   })
     .then(nft => {
       if (!nft) {
         Nft.create(nftData)
           .then(nft => {
-            res.json({ status: nft.nftId + ' Registered!' })
+            res.json({ nft })
           })
           .catch(err => {
             res.send('error: ' + err)
@@ -669,7 +700,7 @@ users.get('/nfts', basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
 
 
 users.get('/nft/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
-  var r_id = req.params.nftId;
+  var r_id = req.params.id;
 
   Nft.findAll({
     where: {
@@ -690,7 +721,7 @@ users.get('/nft/:id',basicAuth( { authorizer: myAuthorizer } ), (req, res) => {
 
 users.delete('/delete_nft/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
 
-  var r_id = req.params.nftId;
+  var r_id = req.params.id;
 
   Nft.destroy({where: {
       id: r_id
@@ -700,9 +731,9 @@ users.delete('/delete_nft/:id', basicAuth( { authorizer: myAuthorizer } ),(req, 
 
 
 users.put('/update_nft/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res) => {
-  var check = req.params.nftId;
+  var check = req.params.id;
   const nftData = {
-    nftId: req.body.nftId,
+    nftUri: req.body.nftUri,
     creator_etps: req.body.creator_etps,
     price: req.body.price
   }
@@ -715,7 +746,7 @@ users.put('/update_nft/:id', basicAuth( { authorizer: myAuthorizer } ),(req, res
     .then(nft => {
       if (nft) {
         nft.update({
-          nftId: req.body.nftId,
+        nftUri: req.body.nftUri,
           creator_etps: req.body.creator_etps,
           price: req.body.price
         });

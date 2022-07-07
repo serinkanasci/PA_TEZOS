@@ -36,14 +36,20 @@ module.exports = db.sequelize.define(
     pwd: {
       type: Sequelize.STRING
     },
-    public_key: {
-      type: Sequelize.INTEGER
-    },
     mensuality: {
       type: Sequelize.DATE
     },
     birth_date: {
       type: Sequelize.DATE
+    },
+    entreprise: {
+      type: Sequelize.STRING
+    },
+    yearly_income: {
+      type: Sequelize.FLOAT
+    },
+    verified: {
+      type: Sequelize.BOOLEAN
     },
     is_banned: {
       type: Sequelize.BOOLEAN

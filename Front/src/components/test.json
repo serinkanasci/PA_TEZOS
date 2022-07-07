@@ -1,0 +1,61 @@
+[
+    {
+        "destination": "KT1ESa9vPgiGjL9k1c3jfcprpCUhS2ffWbga",
+        "kind": "transaction",
+        "amount": 0,
+        "parameters": {
+            "entrypoint": "validationFinancingPlan",
+            "value": {
+                "prim": "Pair",
+                "args": [
+                    {
+                        "int": "2"
+                    },
+                    {
+                        "prim": "Pair",
+                        "args": [
+                            {
+                                "prim": "Pair",
+                                "args": [
+                                    {
+                                        "prim": "Pair",
+                                        "args": [
+                                            {
+                                                "prim": "False"
+                                            },
+                                            {
+                                                "string": "test2"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "prim": "Pair",
+                                        "args": [
+                                            {
+                                                "int": "2.25"
+                                            },
+                                            {
+                                                "int": "12"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "prim": "Pair",
+                                "args": [
+                                    {
+                                        "int": "2"
+                                    },
+                                    {
+                                        "int": "1"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+]

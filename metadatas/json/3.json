@@ -1,0 +1,31 @@
+{
+    "dna": "vDAnUXyLjrpc3E3",
+    "name": "House #3",
+    "description": "We makes it easy to take steps to find the right House, so you can get the home you want.",
+    "image": "https://gateway.pinata.cloud/ipfs/QmVgLH7F7pS5mjiHsKRtqPpWvZVME6PPLXRiQFx7fcj6DN/3.jpg",
+    "edition": 3,
+    "date": 1639268350,
+    "attributes": [
+        {
+            "trait_type": "ROOMS",
+            "value": "10"
+        },
+        {
+            "trait_type": "SQUARE FEET",
+            "value": "300m²"
+        },
+        {
+            "trait_type": "PLACE",
+            "value": "212 Faubourg Saint-Antoine"
+        },
+        {
+            "trait_type": "PARKING",
+            "value": "YES"
+        },
+        {
+            "trait_type": "FURNITURE",
+            "value": "YES"
+        }
+    ],
+    "compiler": "My Blockchain House"
+}

@@ -5,7 +5,7 @@ import '../styles/login.css';
 const CreateAccount = () => {
     return(
         <div>
-          <body>
+          <div>
             <div class="login-page">
             <div class="form">
                 <form class="register-form">
@@ -17,7 +17,7 @@ const CreateAccount = () => {
             </div>
             </div>
             <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-          </body>
+          </div>
         </div>
 
     )

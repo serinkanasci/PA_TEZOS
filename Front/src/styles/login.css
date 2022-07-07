@@ -102,5 +102,6 @@ body {
   background: linear-gradient(to left, rgb(30, 117, 184), rgb(76, 76, 76));
   font-family: "Roboto", sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;      
+  -moz-osx-font-smoothing: grayscale;     
+  overflow-x:unset;
 }

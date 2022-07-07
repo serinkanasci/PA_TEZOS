@@ -40,7 +40,6 @@ export const register = user => {
           method: 'post',
           url: process.env.REACT_APP_BACK+'/users/register',
           data: {
-            id: user.id,
             firstname: user.firstname,
             lastname: user.lastname,
             post_addr: user.post_addr,
@@ -50,9 +49,10 @@ export const register = user => {
             phone_number: user.phone_number,
             mail_addr: user.mail_addr,
             pwd: user.pwd,
-            mensuality: user.mensuality,
             birth_date: user.birth_date,
             entreprise: user.entreprise,
+            yearly_income: user.yearly_income,
+            verified: user.verified,
             is_banned: user.is_banned
           },
           auth: {
@@ -67,6 +67,91 @@ export const register = user => {
 	      	console.log(err);
 
 	    })
+}
+
+export const profile = () => {
+	
+	return axios({
+          method: 'get',
+          url: process.env.REACT_APP_BACK+'/users/profile',
+          headers:{
+                Authorization : localStorage.getItem('usertoken')
+          
+         } })
+	    .then(response => {
+	      
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	      	
+	    })
+
+
+}
+
+export const login = user => {
+	
+	return axios({
+          method: 'post',
+          url: process.env.REACT_APP_BACK+'/users/login',
+          data: {
+            mail_addr: user.mail_addr,
+	      	  pwd: user.pwd
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	  password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      	localStorage.setItem('usertoken', response.data);
+	      
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	      	if(typeof err.response.status != undefined){
+	      		if(err.response.status === 429){
+	      			user.ok = 429;
+	      	}
+	      	if(err.response.status === 400){
+	      			user.ok = 400;
+	      	}
+	      	if(err.response.status === 401){
+	      			user.ok = 401;
+	      	}
+	      	}
+	      	
+	    })
+
+
+}
+
+export const upload = file => {
+
+	var bodyFormData = new FormData();
+	bodyFormData.append('file', file); 
+	
+	return axios({
+          method: 'post',
+          url: process.env.REACT_APP_BACK+'/users/upload/',
+          data:bodyFormData,
+          headers: {'Content-Type': 'multipart/form-data' },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {  
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	      	
+	    })
+
+
 }
 
 export const deleteUser = user => {
@@ -101,8 +186,52 @@ export const updateUser = user => {
             phone_number: user.phone_number,
             mail_addr: user.mail_addr,
             pwd: user.pwd,
-            mensuality: user.mensuality,
             birth_date: user.birth_date,
+            entreprise: user.entreprise,
+            yearly_income: user.yearly_income,
+            verified: user.verified,
+            is_banned: user.is_banned
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+
+	    })
+}
+
+export const verify = user => {
+	return axios({
+          method: 'put',
+          url: process.env.REACT_APP_BACK+'/users/verify_user/'+user.id,
+          data: {
+            verified: user.verified,
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+
+	    })
+}
+
+export const banUser = user => {
+	return axios({
+          method: 'put',
+          url: process.env.REACT_APP_BACK+'/users/ban_user/'+user.mail_addr,
+          data: {
             is_banned: user.is_banned
           },
           auth: {
@@ -123,6 +252,27 @@ export const updateUser = user => {
 // Entreprises
 
 
+export const banEtps = user => {
+	return axios({
+          method: 'put',
+          url: process.env.REACT_APP_BACK+'/users/ban_etps/'+user.entreprise,
+          data: {
+            is_banned: user.is_banned
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+
+	    })
+}
+
 
 export const getEtps = () => {
 	return axios({
@@ -140,10 +290,10 @@ export const getEtps = () => {
 	    })
 }
 
-export const getEtp = etps => {
+export const getEtpsId = etps => {
 	return axios({
          method: 'get',
-         url:process.env.REACT_APP_BACK+'/users/etp/'+etps.id,
+         url:process.env.REACT_APP_BACK+'/users/etps/'+etps,
          auth: {
             username: process.env.REACT_APP_ID,
 	    	password: process.env.REACT_APP_MDP
@@ -156,12 +306,27 @@ export const getEtp = etps => {
 	    })
 }
 
-export const createEtp = etps => {
+export const getEtpsName = etps => {
+	return axios({
+         method: 'get',
+         url:process.env.REACT_APP_BACK+'/users/etpsByName/'+etps,
+         auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          }})
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	    })
+}
+
+export const createEtps = etps => {
 	return axios({
           method: 'post',
-          url: process.env.REACT_APP_BACK+'/users/createEtp',
+          url: process.env.REACT_APP_BACK+'/users/createEtps',
           data: {
-            id: etps.id,
             access_code: etps.access_code,
             entreprise: etps.entreprise,
             is_banned: etps.is_banned
@@ -226,7 +391,7 @@ export const updateEtp = etps => {
 
 
 
-export const getFPlans = () => {
+export const getF = () => {
 	return axios({
          method: 'get',
          url:process.env.REACT_APP_BACK+'/users/financing_plans',
@@ -259,19 +424,21 @@ export const getFPlan = financing_plan => {
 }
 
 export const createFPlan = financing_plan => {
+  console.log(financing_plan)
 	return axios({
           method: 'post',
           url: process.env.REACT_APP_BACK+'/users/create_financing_plan',
           data: {
-            id: financing_plan.id,
             rate_interest: financing_plan.rate_interest,
             rate_insurance: financing_plan.rate_insurance,
-            yearly_income: financing_plan.yearly_income,
             contribution: financing_plan.contribution,
             monthly_loan: financing_plan.monthly_loan,
             housing_price: financing_plan.housing_price,
             user_risk: financing_plan.user_risk,
-            age: financing_plan.age
+            user_id: financing_plan.user_id,
+            nft_id: financing_plan.nft_id,
+            validate: financing_plan.validate,
+            etps: financing_plan.etps
           },
           auth: {
             username: process.env.REACT_APP_ID,
@@ -312,12 +479,36 @@ export const updateFPlan = financing_plan => {
           data: {
             rate_interest: financing_plan.rate_interest,
             rate_insurance: financing_plan.rate_insurance,
-            yearly_income: financing_plan.yearly_income,
             contribution: financing_plan.contribution,
             monthly_loan: financing_plan.monthly_loan,
             housing_price: financing_plan.housing_price,
             user_risk: financing_plan.user_risk,
-            age: financing_plan.age
+            user_id: financing_plan.user_id,
+            nft_id: financing_plan.nft,
+            validate: financing_plan.validate,
+            etps: financing_plan.etps
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+
+	    })
+}
+
+
+export const validateFPlan = financing_plan => {
+	return axios({
+          method: 'put',
+          url: process.env.REACT_APP_BACK+'/users/validate_financing_plan/'+financing_plan.id,
+          data: {
+            validate: financing_plan.validate,
           },
           auth: {
             username: process.env.REACT_APP_ID,
@@ -336,8 +527,8 @@ export const updateFPlan = financing_plan => {
 
 
 
-// NFT
 
+// NFT
 
 
 export const getNFTs = () => {
@@ -348,6 +539,59 @@ export const getNFTs = () => {
             username: process.env.REACT_APP_ID,
 	    	password: process.env.REACT_APP_MDP
           }})
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	    })
+}
+
+
+export const getNFT = nft => {
+	return axios({
+         method: 'get',
+         url:process.env.REACT_APP_BACK+'/users/nft/'+nft,
+         auth: {
+            username: process.env.REACT_APP_ID,
+	    	password: process.env.REACT_APP_MDP
+          }})
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+	    })
+}
+
+export const createNFT = nft => {
+	return axios({
+          method: 'post',
+          url: process.env.REACT_APP_BACK+'/users/create_nft',
+          data: {
+            nftUri: nft.nftUri,
+            creator_etps: nft.creator_etps,
+            price: nft.price
+          },
+          auth: {
+            username: process.env.REACT_APP_ID,
+	    	    password: process.env.REACT_APP_MDP
+          },
+        })
+	    .then(response => {
+	      return response.data;
+	    })
+	    .catch(err => {
+	      	console.log(err);
+
+	    })
+}
+
+
+export const customGet = data => {
+	return axios({
+         method: 'get',
+         url:data})
 	    .then(response => {
 	      return response.data;
 	    })

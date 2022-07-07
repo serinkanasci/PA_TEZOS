@@ -1,14 +1,15 @@
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import config from "../config";
+import { createNFT } from '../api/functions';
 
-const preferredNetwork = "ithacanet";
+const preferredNetwork = "jakartanet";
 const options = {
   name: "NFT",
   iconUrl: "https://tezostaquito.io/img/favicon.png",
   preferredNetwork: preferredNetwork,
 };
-const rpcURL = "https://ithacanet.ecadinfra.com";
+const rpcURL = "https://jakartanet.ecadinfra.com";
 const wallet = new BeaconWallet(options);
 
 const getActiveAccount = async () => {
@@ -65,41 +66,171 @@ export const changeName = async (name) => {
   }
 };
 
-export const getBalance = async (name) => {
-  // const wallet = new BeaconWallet(options);
+export const deposit = async (value) => {
+  console.log("deposit");
   const response = await checkIfWalletConnected(wallet);
-
+  console.log(value)
   if (response.success) {
-
     const tezos = new TezosToolkit(rpcURL);
     tezos.setWalletProvider(wallet);
-    //const contract = await tezos.wallet.at(config.contractAddress);
-    tezos.contract.at(config.contractAddress).then((myContract) => {
-      return myContract
-        .storage()
-        .then((myStorage) => {
-          //We want to see the value of the key "1"
-          console.log(myContract.storage())
-          console.log("avant")
-          const value = myStorage["balances"].get("tz1LykgAH5r5imY4JJciBuusStBNnWGirkt2");
-          console.log(value.c[0])
-         // console.log(`Values associated with this key : amount : ${value[Object.keys(value)[0]]}, quantity :
-         // ${value[Object.keys(value)[1]]}`);
-        })
-        .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
 
-    
+    const account = await wallet.client.getActiveAccount();
+            console.log(account.address);
 
-    //const result = await operation.confirmation();
-    //console.log(result);
+    await tezos.wallet
+    .at(config.contractAddress)
+    .then((contract) => {
+        console.log("ok5");
+        console.log(contract.methods);
+        
+        return contract.methods.deposit().send({"amount":value});
     })
+    .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        // window.location.href = process.env.REACT_APP_FRONT+"/login"
+        return op.confirmation(3).then(() => op.hash);
+    })
+    .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+    .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+            
   }
 };
 
 
+export const withdraw = async (value_to_recup) => {
+  
+  const response = await checkIfWalletConnected(wallet);
+  console.log(value_to_recup)
+  if (response.success) {
+    const tezos = new TezosToolkit(rpcURL);
+    tezos.setWalletProvider(wallet);
+
+    const account = await wallet.client.getActiveAccount();
+            console.log(account.address);
+
+    value_to_recup = value_to_recup * 1000000
+    await tezos.wallet
+    .at(config.contractAddress)
+    .then((contract) => {
+        console.log("ok5");
+        console.log(contract.methods);
+        
+        return contract.methods.withdraw(value_to_recup).send();
+    })
+    .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        // window.location.href = process.env.REACT_APP_FRONT+"/login"
+        return op.confirmation(3).then(() => op.hash);
+    })
+    .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+    .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+            
+  }
+};
+
+export const createAdmin = async (pk) => {
+  
+  const response = await checkIfWalletConnected(wallet);
+  console.log(pk)
+  if (response.success) {
+    const tezos = new TezosToolkit(rpcURL);
+    tezos.setWalletProvider(wallet);
+
+    await tezos.wallet
+    .at(config.contractAddress)
+    .then((contract) => {
+        return contract.methods.createAdmin(pk).send();
+    })
+    .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        return op.confirmation(3).then(() => op.hash);
+    })
+    .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+    .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+    
+  }
+};
+
+export const banAdmin = async (pk) => {
+  
+  const response = await checkIfWalletConnected(wallet);
+  console.log(pk)
+  if (response.success) {
+    const tezos = new TezosToolkit(rpcURL);
+    tezos.setWalletProvider(wallet);
+
+    await tezos.wallet
+    .at(config.contractAddress)
+    .then((contract) => {
+        return contract.methods.banAdmin(pk).send();
+    })
+    .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        return op.confirmation(3).then(() => op.hash);
+    })
+    .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+    .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+    
+  }
+};
+
+export const banAgent = async (pk) => {
+  
+  const response = await checkIfWalletConnected(wallet);
+  console.log(pk)
+  if (response.success) {
+    const tezos = new TezosToolkit(rpcURL);
+    tezos.setWalletProvider(wallet);
+
+    await tezos.wallet
+    .at(config.contractAddress)
+    .then((contract) => {
+        return contract.methods.banAgent(pk).send();
+    })
+    .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        return op.confirmation(3).then(() => op.hash);
+    })
+    .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+    .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+    
+  }
+};
+
+export const mint = async (nft_id, address_uri, nft) => {
+  
+  const response = await checkIfWalletConnected(wallet);
+  console.log(address_uri)
+  console.log(nft_id)
+  if (response.success) {
+    const tezos = new TezosToolkit(rpcURL);
+    tezos.setWalletProvider(wallet);
+    const account = await wallet.client.getActiveAccount();
+    console.log(account.address);
+    //const nftToMint = (address_uri, account.address)
+    const test = [];
+    test.push(address_uri);
+    test.push(account.address);
+    await tezos.wallet
+    .at(config.contractAddress)
+    .then((contract) => {
+        return contract.methods.mint(address_uri, account.address, nft_id ).send();
+    })
+    .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        createNFT(nft).then(res =>{
+        })
+        return op.confirmation(3).then(() => op.hash);
+
+    })
+    .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+    .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+    
+  }
+};
 export {
   connectWallet,
   disconnectWallet,
   getActiveAccount,
-  checkIfWalletConnected,
+  checkIfWalletConnected
 };

@@ -3,11 +3,18 @@ import {
   connectWallet,
   getActiveAccount,
   disconnectWallet,
+  getBalances
 } from "../utils/wallet";
 import { useEffect, useState } from "react";
+import { TezosToolkit } from "@taquito/taquito";
+import config from "../config";
+
 
 export default function Navbar() {
   const [wallet, setWallet] = useState(null);
+  const [balances, setBalances] = useState(0);
+
+  const rpcURL = "https://jakartanet.ecadinfra.com";
 
   const handleConnectWallet = async () => {
     const { wallet } = await connectWallet();
@@ -23,6 +30,19 @@ export default function Navbar() {
       const account = await getActiveAccount();
       if (account) {
         setWallet(account.address);
+
+        const tezos = new TezosToolkit(rpcURL);
+        tezos.setWalletProvider(wallet);
+        tezos.contract.at(config.contractAddress).then((myContract) => {
+          return myContract
+            .storage()
+            .then((myStorage) => {
+              const balance = myStorage["balances"].get(account.address);
+
+              setBalances(balance.c[0]/1000000);
+            })
+            .catch((error) => console.log(`Error: ${JSON.stringify(error, null, 2)}`));
+        })
       }
     };
     func();
@@ -31,27 +51,9 @@ export default function Navbar() {
   return (
     <nav className="bg-gray-800 h-14 flex items-center px-10 justify-between">
       <div className="flex-1 space-x-4">
-        <a href="#!" className="font-bold text-white pr-6">
-          ICON HERE
-        </a>
-        <a
-          href="#!"
-          className="bg-black text-gray-200 px-4 py-2 text-sm font-semibold rounded-sm"
-        >
-          Home
-        </a>
-        <a
-          href="#!"
-          className="cursor-pointer text-gray-300 px-4 py-2 text-sm font-semibold rounded-sm hover:bg-gray-700 hover:text-gray-200"
-        >
-          Mint
-        </a>
-        <a
-          href="#!"
-          className="cursor-pointer text-gray-300 px-4 py-2 text-sm font-semibold rounded-sm hover:bg-gray-700 hover:text-gray-200"
-        >
-          About
-        </a>
+      </div>
+      <div>
+        💳{balances}
       </div>
       <div>
         <button

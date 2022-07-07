@@ -30,7 +30,6 @@ const limit = rateLimit({
     message: 'Too many requests please wait 5 minutes'
 });
 app.use('/users/login', limit);
-app.use('/users/login_agent', limit);
 
 app.use('/users', Users);
 

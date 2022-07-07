@@ -179,25 +179,17 @@ function create_admin(var store : storageType; var public_key: address) : (list(
 
 function create_agent(var store : storageType; var parameter: input_agent_infos) : (list(operation) * storageType) is 
   block {
-        const admin : option(bool) = store.mapping_admin[Tezos.get_sender()];
-        case admin of [
-        | None -> block{
+        const public_key : address = parameter.public_key;
+        case store.mapping_agent[public_key] of [
+        | Some (_bool) -> block {
             skip
         }
-        | Some(_a) -> block { 
-          const public_key : address = parameter.public_key;
-          case store.mapping_agent[public_key] of [
-            | Some (_bool) -> block {
-              skip
-            }
-            | None -> block {
+        | None -> block {
             const agency : string = parameter.agency;
             const is_ban : bool = False;
             const new_record_agent: agent_infos = record [ agency = agency; is_ban = is_ban;];
             store.mapping_agent[public_key] := new_record_agent;
             skip
-            }
-          ];
         }
         ];      
   }
@@ -247,28 +239,29 @@ function validation_financing_plan(var store : storageType; var parameter: input
 
 function withdrawF(var s : storageType; var parameter: tez) : (list(operation) * storageType) is 
   block {
+    if Tezos.get_sender() = s.main_admin and s.usable_fund > parameter
+    then
+    block{
+        const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
+        const _payoutOperation: operation = Tezos.transaction(unit, parameter, receiver);
+        const result : option(tez) = s.usable_fund - parameter;
+        case result of [
+        | None -> block{
+            skip
+        }
+        | Some(u) -> block { 
+            s.usable_fund := u
+        }
+    ];
+    }
+    else block {
     const tmp : option(tez) = s.balances[Tezos.get_sender()];
     case tmp of [
     | None -> block{
         skip
     }
     | Some(b) -> block { 
-        if Tezos.get_sender() = s.main_admin and s.usable_fund > parameter
-        then
-        block{
-          const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
-          const _payoutOperation: operation = Tezos.transaction(unit, parameter, receiver);
-          const result : option(tez) = s.usable_fund - parameter;
-          case result of [
-            | None -> block{
-                skip
-            }
-            | Some(u) -> block { 
-                s.usable_fund := u
-            }
-        ];
-        }
-        else if b > parameter
+        if b > parameter
           then
           block{
             const receiver: contract(unit) = Tezos.get_contract (Tezos.get_sender());
@@ -284,8 +277,9 @@ function withdrawF(var s : storageType; var parameter: tez) : (list(operation) *
             ];
           }
           else skip;
-    }
+        }
     ];
+    }
     
         
     //storage.balance := storage.balance - withdrawAmount;              
@@ -294,84 +288,74 @@ function withdrawF(var s : storageType; var parameter: tez) : (list(operation) *
 function pay_validation(var store : storageType; var parameter: int) : (list(operation) * storageType) is 
   block {
     if(isAdmin(store.main_admin)) then
-			block{
-				const id : int = parameter;
+	block{
+	  const id : int = parameter;
       case store.mapping_user[id] of [
-        | Some (_bool) -> block {
-            const id : int = parameter;
-            const record_user : option(user_infos) = store.mapping_user[id];
-            case record_user of [
-            | None -> block{
-                skip
-            }
-            | Some(d) -> block {
-                if d.validation.active = True and d.validation.mensualities_months > 0
-                  then
-                  block{
-                    const tot : tez = d.validation.mensualities_price + d.validation.contribution;
-                    const tmp : option(tez) = store.balances[Tezos.get_sender()];
-                    case tmp of [
-                    | None -> block{
-                        skip
-                    }
-                    | Some(b) -> block { 
-                        if b > tot
-                        then
-                        block{
-                          if d.validation.mensualities_months - 1 = 0
-                            then
-                            block{
-                              const pub : address = d.public_key;
-                              const validation : validation = record [active= False; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
-                              const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
-                              store.mapping_user[id] := new_record_user;
-                              const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
-                              case result of [
-                                | None -> block{
-                                    skip
-                                }
-                                | Some(amount) -> block { 
-                                    store.balances[Tezos.get_sender()] := amount
-                                }
-                              ];
-                              //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
-                              store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
-                            }
-                            else
-                            block{
-                              const pub : address = d.public_key;
-                              const validation : validation = record [active= True; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
-                              const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
-                              store.mapping_user[id] := new_record_user;
-                              const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
-                              case result of [
-                                | None -> block{
-                                    skip
-                                }
-                                | Some(amount) -> block { 
-                                    store.balances[Tezos.get_sender()] := amount
-                                }
-                              ];
-                              //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
-                              store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
-                            }
-                          
-                        }
-                        else failwith("Not enough money in the user wallet");
-                    }
-                    ];
-                  }
-                  else skip;
-            }
-            ];
-            
-          skip
-        }
         | None -> block {
           skip
         }
-        ];
-			}
+        | Some (d) -> block {
+            if d.validation.active = True and d.validation.mensualities_months > 0
+                then
+                block{
+                const tot : tez = d.validation.mensualities_price + d.validation.contribution;
+                const tmp : option(tez) = store.balances[d.public_key];
+                case tmp of [
+                | None -> block{
+                    skip
+                }
+                | Some(b) -> block { 
+                    if b > tot
+                    then
+                    block{
+                        if d.validation.mensualities_months - 1 = 0
+                        then
+                        block{
+                            const pub : address = d.public_key;
+                            const validation : validation = record [active= False; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
+                            const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
+                            store.mapping_user[id] := new_record_user;
+                            const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
+                            case result of [
+                            | None -> block{
+                                skip
+                            }
+                            | Some(amount) -> block { 
+                                store.balances[Tezos.get_sender()] := amount
+                            }
+                            ];
+                            //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
+                            store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
+                        }
+                        else
+                        block{
+                            const pub : address = d.public_key;
+                            const validation : validation = record [active= True; mensualities_months= d.validation.mensualities_months-1; mensualities_price= d.validation.mensualities_price; contribution= 0tz; agency= d.validation.agency; nftId= d.validation.nftId;];
+                            const new_record_user: user_infos = record [ public_key = pub; validation = validation;];
+                            store.mapping_user[id] := new_record_user;
+                            const result : option(tez) = b - (d.validation.mensualities_price+d.validation.contribution);
+                            case result of [
+                            | None -> block{
+                                skip
+                            }
+                            | Some(amount) -> block { 
+                                store.balances[d.public_key] := amount
+                            }
+                            ];
+                            //store.balances[Tezos.get_sender()] := b - (d.validation.mensualities_price+d.validation.contribution);
+                            store.usable_fund := store.usable_fund + (d.validation.mensualities_price+d.validation.contribution);
+                        }
+                        
+                    }
+                    else failwith("Not enough money in the user wallet");
+                }
+                ];
+                }
+            else skip;
+            }
+            ];
+          skip
+        }
 		else failwith("You are not admin");
       
   }
@@ -403,20 +387,23 @@ function deposit(var s : storageType) : (list(operation) * storageType) is
 
     // else skip;
 
-    if Tezos.amount > 0tz
-      then
+    if isAdmin(s.main_admin)
+      then 
       block{
-        const tmp : option(tez) = s.balances[Tezos.get_sender()];
-        case tmp of [
-        | None -> block{
-            s.balances[Tezos.get_sender()] := Tezos.amount;
+        s.usable_fund := s.usable_fund + Tezos.get_amount();
+       }
+    else 
+      block{
+            const tmp : option(tez) = s.balances[Tezos.get_sender()];
+            case tmp of [
+            | None -> block{
+                s.balances[Tezos.get_sender()] := Tezos.get_amount();
+            }
+            | Some(b) -> block { 
+                s.balances[Tezos.get_sender()] := b + Tezos.get_amount();
+            }
+            ];
         }
-        | Some(b) -> block { 
-            s.balances[Tezos.get_sender()] := b + Tezos.amount;
-        }
-        ];
-      }
-      else skip;
   end with ((nil: list(operation)) , s)
 
 function mint(var action : actionMint ; var s : storageType) : (list(operation) * storageType) is
@@ -426,11 +413,14 @@ function mint(var action : actionMint ; var s : storageType) : (list(operation) 
         | None -> block{
           skip
         }
-        | Some(_b) -> block { 
-          case s.nfts[action.nftToMintId] of [ 
-            | None -> s.nfts[action.nftToMintId] := action.nftToMint
-            | Some(_x) -> skip // fail "I've seen that token id before."
-          ];
+        | Some(b) -> block { 
+          if b.is_ban = false then
+              block{
+                case s.nfts[action.nftToMintId] of [ 
+                | None -> s.nfts[action.nftToMintId] := action.nftToMint
+                | Some(_x) -> skip // fail "I've seen that token id before."
+                ]; 
+            }
         }
         ];
   end with ((nil: list(operation)) , s)
@@ -482,4 +472,3 @@ function main (var p : action ; var s : storageType) :
     | BanAdmin (ban) -> ban_admin (s, ban)
     | BanAgent (b) -> ban_agent (s, b)
    ];
-

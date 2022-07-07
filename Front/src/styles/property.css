@@ -17,10 +17,11 @@
 
 .all-cards{
     margin: 1% 1% 5% 1%;
-    display: flex;
     min-width: min-content;
-    justify-content: space-evenly;
-    align-items: center;
+    margin-left:-600px;
+    width:80vw;
+    display: inline-block;
+    zoom: 1;
 }
 
 @media  (max-width:960px){

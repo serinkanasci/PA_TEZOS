@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Navbar from './shared/Navbar';
-import Home from './components/Home';
-import About from './components/About';
-import Agents from './components/Agents';
+import Script from './components/Script';
 import Properties from './components/Properties';
 import Property from './components/Property';
 import Footer from './shared/Footer';
@@ -13,8 +11,10 @@ import NotFound from './components/NotFound';
 import Details from './components/Details';
 import Login from './components/Login';
 import Register from './components/Register';
+import LoginAdmin from './components/LoginAdmin';
+import PrivateRoute from './PrivateRoute';
 // import CreateAccount from './components/CreateAccount';
-import Test from './Test';
+import Funding from './components/Funding';
 
 function App() {
   const [token, setToken] = useState();
@@ -30,18 +30,7 @@ function App() {
           <Route exact path="/register">
             <Register />
           </Route>
-          <Route exact path="/home">
-            <Home />
-          </Route>
-          <Route exact path="/test">
-            <Test />
-          </Route>
-          <Route exact path="/about">
-            <About />
-          </Route>
-          <Route exact path="/agents">
-            <Agents />
-          </Route>
+          <PrivateRoute exact path="/funding" component={Funding} authed={localStorage.getItem('user')} />
           <Route exact path="/properties">
             <Properties />
           </Route>
@@ -56,6 +45,12 @@ function App() {
           </Route>
           <Route exact path="/login">
             <Login />
+          </Route>
+          <Route exact path="/loginAdmin">
+            <LoginAdmin />
+          </Route>
+          <Route exact path="/script">
+            <Script />
           </Route>
           <Route exact path="*">
             <NotFound />
